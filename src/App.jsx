@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 
 // ── 示例数据，后期接后端时替换掉 ──────────────────────────────────
+const API_BASE = "https://lin-home-backend.onrender.com";
 const INIT_SESSIONS = [
   { id: 1, name: "今天", date: "6月9日" },
   { id: 2, name: "纹身那天", date: "5月14日" },
