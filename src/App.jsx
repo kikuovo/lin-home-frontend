@@ -100,6 +100,15 @@ export default function App() {
   const handleSend = async () => {
     if (!input.trim() || isTyping) return;
     const text = input.trim();
+
+    // 如果没有 session，先创建一个
+    let sessionId = activeId;
+    if (!sessionId) {
+      const newSession = await createSession();
+      sessionId = newSession?.id;
+    }
+    if (!sessionId) return;
+
     setInput("");
 
     // 乐观更新：先把用户消息显示出来
@@ -111,7 +120,7 @@ export default function App() {
       const res = await fetch(`${API_BASE}/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ session_id: activeId, content: text, model }),
+        body: JSON.stringify({ session_id: sessionId, content: text, model }),
       });
       const data = await res.json();
       if (data.content) {
