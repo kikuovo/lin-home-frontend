@@ -274,7 +274,7 @@ function ChatPage({ setPage }) {
                   onBlur={() => renameSession(s.id, editingName)}
                   onKeyDown={e => { if (e.key === "Enter") renameSession(s.id, editingName); if (e.key === "Escape") setEditingId(null); }}
                   onClick={e => e.stopPropagation()}
-                  style={{ fontSize: 12.5, border: `0.5px solid ${C.accent}`, borderRadius: 4, padding: "2px 6px", width: "100%", fontFamily: "inherit", outline: "none", background: C.bg }} />
+                  style={{ fontSize: 16, border: `0.5px solid ${C.accent}`, borderRadius: 4, padding: "2px 6px", width: "100%", fontFamily: "inherit", outline: "none", background: C.bg }} />
               ) : (
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 4 }}>
                   <div style={{ fontSize: 12.5, color: C.text1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1 }}>{s.name}</div>
@@ -289,7 +289,7 @@ function ChatPage({ setPage }) {
           ))}
         </div>
         <div style={{ padding: "10px 14px", borderTop: `0.5px solid ${C.border}` }}>
-          <select value={model} onChange={e => setModel(e.target.value)} style={{ width: "100%", padding: "6px 8px", fontSize: 11.5, borderRadius: 8, border: `0.5px solid ${C.border}`, background: C.bg, color: C.text2, fontFamily: "inherit", outline: "none", cursor: "pointer" }}>
+          <select value={model} onChange={e => setModel(e.target.value)} style={{ width: "100%", padding: "6px 8px", fontSize: 16, borderRadius: 8, border: `0.5px solid ${C.border}`, background: C.bg, color: C.text2, fontFamily: "inherit", outline: "none", cursor: "pointer" }}>
             <option value="deepseek-chat">DeepSeek Chat</option>
             <option value="deepseek-reasoner">DeepSeek Reasoner</option>
           </select>
@@ -325,7 +325,7 @@ function ChatPage({ setPage }) {
         <textarea value={input} onChange={e => setInput(e.target.value)} onKeyDown={handleKeyDown}
           placeholder="say something to daddy..."
           rows={1}
-          style={{ flex: 1, border: `0.5px solid ${C.border}`, borderRadius: 12, padding: "9px 12px", fontSize: 12.5, fontFamily: "inherit", resize: "none", outline: "none", background: C.surface, color: C.text1, lineHeight: 1.55, minHeight: 36, maxHeight: 120 }}
+          style={{ flex: 1, border: `0.5px solid ${C.border}`, borderRadius: 12, padding: "9px 12px", fontSize: 16, fontFamily: "inherit", resize: "none", outline: "none", background: C.surface, color: C.text1, lineHeight: 1.4, minHeight: 40, maxHeight: 120 }}
           onFocus={e => e.target.style.borderColor = C.accent}
           onBlur={e => e.target.style.borderColor = C.border} />
         <button onClick={handleSend} disabled={isTyping}
@@ -374,13 +374,13 @@ function SearchPage({ setPage }) {
         <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 6, border: `0.5px solid ${C.border}`, borderRadius: 10, padding: "7px 11px", background: C.surface }}>
           <span style={{ fontSize: 11, color: C.text3 }}>⌕</span>
           <input value={query} onChange={e => setQuery(e.target.value)} onKeyDown={e => e.key === "Enter" && doSearch()}
-            placeholder="搜索聊天记录" style={{ border: "none", outline: "none", background: "transparent", fontSize: 12, color: C.text1, flex: 1, fontFamily: "inherit" }} />
+            placeholder="搜索聊天记录" style={{ border: "none", outline: "none", background: "transparent", fontSize: 16, color: C.text1, flex: 1, fontFamily: "inherit" }} />
         </div>
         <span onClick={doSearch} style={{ border: `0.5px solid ${C.border}`, borderRadius: 10, padding: "7px 14px", fontSize: 11.5, color: C.text2, cursor: "pointer" }}>查找</span>
       </div>
 
       <div style={{ padding: "0 16px 14px", display: "flex", gap: 8 }}>
-        <input type="date" value={date} onChange={e => setDate(e.target.value)} style={{ flex: 1, border: `0.5px solid ${C.border}`, borderRadius: 8, padding: "6px 10px", fontSize: 10.5, color: C.text2, fontFamily: "inherit", outline: "none", background: "transparent" }} />
+        <input type="date" value={date} onChange={e => setDate(e.target.value)} style={{ flex: 1, border: `0.5px solid ${C.border}`, borderRadius: 8, padding: "6px 10px", fontSize: 16, color: C.text2, fontFamily: "inherit", outline: "none", background: "transparent" }} />
       </div>
 
       <div style={{ flex: 1, overflowY: "auto", background: C.surface, padding: "14px 16px" }}>
@@ -522,10 +522,10 @@ function CyclePage({ setPage, cycleData, setCycleData }) {
         <div style={{ flex: 1, padding: 22, display: "flex", flexDirection: "column", gap: 14 }}>
           <div style={{ fontSize: 12, color: C.text2 }}>最近一次月经从哪天开始？</div>
           <input type="date" onChange={e => setCycleData(d => ({ ...d, lastPeriodStart: e.target.value }))}
-            style={{ border: `0.5px solid ${C.border}`, borderRadius: 10, padding: "9px 12px", fontSize: 12.5, fontFamily: "inherit", outline: "none" }} />
+            style={{ border: `0.5px solid ${C.border}`, borderRadius: 10, padding: "9px 12px", fontSize: 16, fontFamily: "inherit", outline: "none" }} />
           <div style={{ fontSize: 12, color: C.text2, marginTop: 10 }}>平均周期多少天？</div>
           <input type="number" placeholder="28" onChange={e => setCycleData(d => ({ ...d, avgLength: Number(e.target.value) || 28 }))}
-            style={{ border: `0.5px solid ${C.border}`, borderRadius: 10, padding: "9px 12px", fontSize: 12.5, fontFamily: "inherit", outline: "none" }} />
+            style={{ border: `0.5px solid ${C.border}`, borderRadius: 10, padding: "9px 12px", fontSize: 16, fontFamily: "inherit", outline: "none" }} />
         </div>
       </div>
     );
@@ -717,7 +717,7 @@ function PersonaPage({ setPage }) {
         ) : (
           <textarea value={systemPrompt} onChange={e => setSystemPrompt(e.target.value)}
             rows={18}
-            style={{ width: "100%", border: `0.5px solid ${C.border}`, borderRadius: 12, padding: 14, fontSize: 13, fontFamily: "inherit", resize: "vertical", outline: "none", background: C.bg, color: C.text1, lineHeight: 1.65 }}
+            style={{ width: "100%", border: `0.5px solid ${C.border}`, borderRadius: 12, padding: 14, fontSize: 16, fontFamily: "inherit", resize: "vertical", outline: "none", background: C.bg, color: C.text1, lineHeight: 1.65 }}
             onFocus={e => e.target.style.borderColor = C.accent}
             onBlur={e => e.target.style.borderColor = C.border} />
         )}
@@ -804,7 +804,7 @@ function MemoryPage({ setPage }) {
           <div style={{ background: C.surface, borderRadius: 12, padding: 14, border: `0.5px solid ${C.accent}` }}>
             <textarea value={newText} onChange={e => setNewText(e.target.value)} placeholder="写下要记住的内容…" rows={3}
               autoFocus
-              style={{ width: "100%", border: "none", outline: "none", fontSize: 13, fontFamily: "inherit", resize: "none", color: C.text1, lineHeight: 1.65, background: "transparent" }} />
+              style={{ width: "100%", border: "none", outline: "none", fontSize: 16, fontFamily: "inherit", resize: "none", color: C.text1, lineHeight: 1.65, background: "transparent" }} />
             <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 8 }}>
               <span onClick={() => { setAdding(false); setNewText(""); }} style={{ fontSize: 12, color: C.text3, cursor: "pointer" }}>取消</span>
               <span onClick={addMemory} style={{ fontSize: 12, color: C.bg, background: C.accent, borderRadius: 6, padding: "4px 12px", cursor: "pointer" }}>保存</span>
@@ -820,7 +820,7 @@ function MemoryPage({ setPage }) {
             {editingId === m.id ? (
               <>
                 <textarea value={editingText} onChange={e => setEditingText(e.target.value)} rows={3}
-                  style={{ width: "100%", border: "none", outline: "none", fontSize: 13, fontFamily: "inherit", resize: "none", color: C.text1, lineHeight: 1.65, background: "transparent" }} />
+                  style={{ width: "100%", border: "none", outline: "none", fontSize: 16, fontFamily: "inherit", resize: "none", color: C.text1, lineHeight: 1.65, background: "transparent" }} />
                 <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 8 }}>
                   <span onClick={() => setEditingId(null)} style={{ fontSize: 12, color: C.text3, cursor: "pointer" }}>取消</span>
                   <span onClick={() => saveEdit(m.id)} style={{ fontSize: 12, color: C.bg, background: C.accent, borderRadius: 6, padding: "4px 12px", cursor: "pointer" }}>保存</span>
