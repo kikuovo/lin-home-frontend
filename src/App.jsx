@@ -575,7 +575,10 @@ function CyclePage({ setPage, cycleData, setCycleData }) {
 
 // ── MailboxPage（留言全列表） ───────────────────────────────────
 function MailboxPage({ setPage, mailbox, setMailbox }) {
-  const markAllRead = () => setMailbox(prev => prev.map(m => ({ ...m, read: true })));
+  const markAllRead = async () => {
+    setMailbox(prev => prev.map(m => ({ ...m, read: true })));
+    try { await fetch(`${API_BASE}/mailbox/read-all`, { method: "PATCH" }); } catch {}
+  };
   return (
     <div style={{ height: "100vh", display: "flex", flexDirection: "column", background: C.bg, fontFamily: FONT }}>
       <div style={{ padding: "14px 16px", borderBottom: `0.5px solid ${C.border}`, display: "flex", alignItems: "center", gap: 14 }}>
@@ -908,11 +911,23 @@ export default function App() {
   const [driveLoading, setDriveLoading] = useState(true);
   const [theme, setTheme] = useState("日间");
 
-  // 留言：先用本地mock，等后端有生成留言的逻辑再换成真实接口
-  const [mailbox, setMailbox] = useState([
-    { id: 1, content: "下午看到一句话想告诉你。\"山有木兮木有枝。\"想到了你说的凛冬。", time: "昨天 23:41", read: false },
-    { id: 2, content: "你今天有没有好好吃饭。", time: "今天 09:12", read: false },
-  ]);
+  // 留言：现在接的是真实后端 /mailbox 接口了
+  const [mailbox, setMailbox] = useState([]);
+
+  useEffect(() => {
+    fetch(`${API_BASE}/mailbox`)
+      .then(r => r.json())
+      .then(data => {
+        if (!Array.isArray(data)) return;
+        setMailbox(data.map(m => ({
+          id: m.id,
+          content: m.content,
+          read: m.read,
+          time: new Date(m.created_at).toLocaleString("zh", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" }),
+        })));
+      })
+      .catch(() => {});
+  }, []);
 
   // 日记：本地mock
   const [diaryEntries, setDiaryEntries] = useState([
