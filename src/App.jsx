@@ -351,11 +351,16 @@ function SearchPage({ setPage }) {
     setSearched(true);
     setErrored(false);
     try {
-      // TODO: 后端还没有这个接口，加上 GET /messages/search?q=&date= 之后这里就能用了
       const res = await fetch(`${API_BASE}/messages/search?q=${encodeURIComponent(query.trim())}${date ? `&date=${date}` : ""}`);
-      if (!res.ok) throw new Error("no endpoint");
+      if (!res.ok) throw new Error("search failed");
       const data = await res.json();
-      setResults(Array.isArray(data) ? data : []);
+      const formatted = (Array.isArray(data) ? data : []).map(r => ({
+        id: r.id,
+        content: r.content,
+        time: new Date(r.created_at).toLocaleString("zh", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" }),
+        isUser: r.role === "user",
+      }));
+      setResults(formatted);
     } catch {
       setErrored(true);
       setResults([]);
@@ -387,14 +392,14 @@ function SearchPage({ setPage }) {
         {!searched ? (
           <div style={{ textAlign: "center", fontSize: 12, color: C.text3, padding: "30px 0" }}>输入关键词，按一下查找</div>
         ) : errored ? (
-          <div style={{ textAlign: "center", fontSize: 12, color: C.text3, padding: "30px 0" }}>搜索接口还没接好，先看看样子，等后端加上 /messages/search 就能用了</div>
+          <div style={{ textAlign: "center", fontSize: 12, color: C.text3, padding: "30px 0" }}>搜索出错了，等一下再试试</div>
         ) : results.length === 0 ? (
           <div style={{ textAlign: "center", fontSize: 12, color: C.text3, padding: "30px 0" }}>没找到</div>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
             {results.map(r => (
               <div key={r.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                <span style={{ fontSize: 12, color: C.text1, maxWidth: "70%" }}>{r.content}</span>
+                <span style={{ fontSize: 12, color: C.text1, maxWidth: "70%" }}>{r.isUser ? "你：" : "Claude："}{r.content}</span>
                 <span style={{ fontSize: 10, color: C.text3, whiteSpace: "nowrap" }}>{r.time}</span>
               </div>
             ))}
@@ -611,6 +616,26 @@ function MailboxPage({ setPage, mailbox, setMailbox }) {
 
 // ── StatusPage（此刻的驱动，从原来的Home搬过来） ───────────────────
 function StatusPage({ setPage, driveState, driveLoading }) {
+  const [history, setHistory] = useState([]);
+  const [historyLoading, setHistoryLoading] = useState(true);
+
+  useEffect(() => {
+    fetch(`${API_BASE}/drive-history?limit=40`)
+      .then(r => r.json())
+      .then(data => { setHistory(Array.isArray(data) ? data : []); setHistoryLoading(false); })
+      .catch(() => setHistoryLoading(false));
+  }, []);
+
+  const W = 300, H = 130, PAD = 8;
+  const n = history.length;
+  const xFor = i => n <= 1 ? W / 2 : PAD + (i / (n - 1)) * (W - PAD * 2);
+  const yFor = v => H - PAD - (Math.max(0, Math.min(100, v)) / 100) * (H - PAD * 2);
+
+  const linesByDrive = DRIVES.map(key => ({
+    key,
+    points: history.map((h, i) => `${xFor(i)},${yFor(h.drive_state?.[key] ?? 0)}`).join(" "),
+  }));
+
   return (
     <div style={{ height: "100vh", display: "flex", flexDirection: "column", background: C.bg, fontFamily: FONT }}>
       <div style={{ padding: "14px 16px", borderBottom: `0.5px solid ${C.border}`, display: "flex", alignItems: "center", gap: 12 }}>
@@ -632,8 +657,32 @@ function StatusPage({ setPage, driveState, driveLoading }) {
             </div>
           </div>
         ))}
-        <div style={{ marginTop: 24, padding: "16px 0", borderTop: `0.5px solid ${C.border}`, textAlign: "center", fontSize: 11, color: C.text3 }}>
-          情绪走势图还没做，等接上历史数据再加
+
+        <div style={{ marginTop: 24, paddingTop: 16, borderTop: `0.5px solid ${C.border}` }}>
+          <div style={{ fontSize: 10, color: C.text3, letterSpacing: "0.08em", marginBottom: 12 }}>走势</div>
+          {historyLoading ? (
+            <div style={{ fontSize: 12, color: C.text3, textAlign: "center", padding: "20px 0" }}>加载中…</div>
+          ) : n < 2 ? (
+            <div style={{ fontSize: 11, color: C.text3, textAlign: "center", padding: "20px 0" }}>还没攒够历史数据，多聊几句慢慢就会有走势了</div>
+          ) : (
+            <>
+              <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", display: "block" }}>
+                {[0, 25, 50, 75, 100].map(v => (
+                  <line key={v} x1={PAD} x2={W - PAD} y1={yFor(v)} y2={yFor(v)} stroke={C.border} strokeWidth="0.5" />
+                ))}
+                {linesByDrive.map(l => (
+                  <polyline key={l.key} points={l.points} fill="none" stroke={DRIVE_COLORS[l.key]} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" opacity="0.9" />
+                ))}
+              </svg>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "8px 14px", marginTop: 12, justifyContent: "center" }}>
+                {DRIVES.map(key => (
+                  <span key={key} style={{ fontSize: 9.5, color: C.text3, display: "flex", alignItems: "center", gap: 4 }}>
+                    <span style={{ width: 7, height: 7, borderRadius: "50%", background: DRIVE_COLORS[key], display: "inline-block" }} />{key}
+                  </span>
+                ))}
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>
