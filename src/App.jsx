@@ -84,15 +84,29 @@ function MessageItem({ msg }) {
     : msg.time || "";
 
   if (isUser) {
+    const isImage = msg.attachment_type?.startsWith("image/");
     return (
       <div style={{ alignSelf: "flex-end", maxWidth: "80%", textAlign: "right" }}>
-        <div style={{
-          background: C.bubble, color: C.bg, borderRadius: 14, borderBottomRightRadius: 4,
-          padding: "9px 13px", fontSize: 13.5, lineHeight: 1.6, textAlign: "left",
-          whiteSpace: "pre-wrap", wordBreak: "break-word", display: "inline-block"
-        }}>
-          {msg.content}
-        </div>
+        {msg.attachment_url && (
+          <div style={{ marginBottom: msg.content ? 6 : 0 }}>
+            {isImage ? (
+              <img src={msg.attachment_url} style={{ maxWidth: 180, maxHeight: 220, borderRadius: 12, display: "inline-block" }} />
+            ) : (
+              <a href={msg.attachment_url} target="_blank" rel="noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 6, background: C.surface, border: `0.5px solid ${C.border}`, borderRadius: 10, padding: "7px 11px", fontSize: 12, color: C.text2, textDecoration: "none" }}>
+                📎 {msg.attachment_name || "文件"}
+              </a>
+            )}
+          </div>
+        )}
+        {msg.content && (
+          <div style={{
+            background: C.bubble, color: C.bg, borderRadius: 14, borderBottomRightRadius: 4,
+            padding: "9px 13px", fontSize: 13.5, lineHeight: 1.6, textAlign: "left",
+            whiteSpace: "pre-wrap", wordBreak: "break-word", display: "inline-block"
+          }}>
+            {msg.content}
+          </div>
+        )}
         <div style={{ fontSize: 10, color: C.text3, marginTop: 4 }}>{time}{time ? " 已读" : ""}</div>
       </div>
     );
@@ -173,7 +187,10 @@ function ChatPage({ setPage }) {
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState(null);
   const [editingName, setEditingName] = useState("");
+  const [attachment, setAttachment] = useState(null);
+  const [uploading, setUploading] = useState(false);
   const messagesEndRef = useRef(null);
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     fetch(`${API_BASE}/sessions`)
@@ -221,17 +238,47 @@ function ChatPage({ setPage }) {
     }
   };
 
+  const handleFileSelect = async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch(`${API_BASE}/upload`, { method: "POST", body: formData });
+      const data = await res.json();
+      if (data.url) setAttachment({ url: data.url, type: data.type, name: data.name });
+    } catch {
+      // 上传失败就静默放弃，下面发送框不会显示附件预览
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const handleSend = async () => {
-    if (!input.trim() || isTyping) return;
+    if ((!input.trim() && !attachment) || isTyping || uploading) return;
     const text = input.trim();
+    const att = attachment;
     let sessionId = activeId;
     if (!sessionId) { const s = await createSession(); sessionId = s?.id; }
     if (!sessionId) return;
     setInput("");
-    setMessages(prev => [...prev, { id: `temp-${Date.now()}`, role: "user", content: text, time: new Date().toLocaleTimeString("zh", { hour: "2-digit", minute: "2-digit" }) }]);
+    setAttachment(null);
+    setMessages(prev => [...prev, {
+      id: `temp-${Date.now()}`, role: "user", content: text,
+      attachment_url: att?.url, attachment_type: att?.type, attachment_name: att?.name,
+      time: new Date().toLocaleTimeString("zh", { hour: "2-digit", minute: "2-digit" }),
+    }]);
     setIsTyping(true);
     try {
-      const res = await fetch(`${API_BASE}/chat`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ session_id: sessionId, content: text, model }) });
+      const res = await fetch(`${API_BASE}/chat`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          session_id: sessionId, content: text, model,
+          attachment_url: att?.url, attachment_type: att?.type, attachment_name: att?.name,
+        }),
+      });
       const data = await res.json();
       if (data.content) {
         setMessages(prev => [...prev, { id: Date.now(), role: "assistant", content: data.content, thinking: data.thinking, time: new Date().toLocaleTimeString("zh", { hour: "2-digit", minute: "2-digit" }) }]);
@@ -321,15 +368,37 @@ function ChatPage({ setPage }) {
       </div>
 
       {/* 输入框 */}
-      <div style={{ padding: "10px 14px", borderTop: `0.5px solid ${C.border}`, display: "flex", gap: 8, alignItems: "flex-end", background: C.bg, flexShrink: 0 }}>
-        <textarea value={input} onChange={e => setInput(e.target.value)} onKeyDown={handleKeyDown}
-          placeholder="say something to daddy..."
-          rows={1}
-          style={{ flex: 1, border: `0.5px solid ${C.border}`, borderRadius: 12, padding: "9px 12px", fontSize: 16, fontFamily: "inherit", resize: "none", outline: "none", background: C.surface, color: C.text1, lineHeight: 1.4, minHeight: 40, maxHeight: 120 }}
-          onFocus={e => e.target.style.borderColor = C.accent}
-          onBlur={e => e.target.style.borderColor = C.border} />
-        <button onClick={handleSend} disabled={isTyping}
-          style={{ width: 36, height: 36, borderRadius: "50%", border: "none", background: isTyping ? C.muted : C.accent, color: C.bg, cursor: isTyping ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, flexShrink: 0 }}>↑</button>
+      <div style={{ borderTop: `0.5px solid ${C.border}`, background: C.bg, flexShrink: 0 }}>
+        {(attachment || uploading) && (
+          <div style={{ padding: "8px 14px 0", display: "flex", alignItems: "center", gap: 8 }}>
+            {uploading ? (
+              <span style={{ fontSize: 11, color: C.text3 }}>上传中…</span>
+            ) : (
+              <div style={{ display: "flex", alignItems: "center", gap: 8, background: C.surface, border: `0.5px solid ${C.border}`, borderRadius: 10, padding: "5px 10px" }}>
+                {attachment.type?.startsWith("image/") ? (
+                  <img src={attachment.url} style={{ width: 28, height: 28, objectFit: "cover", borderRadius: 6 }} />
+                ) : (
+                  <span style={{ fontSize: 11 }}>📎</span>
+                )}
+                <span style={{ fontSize: 11, color: C.text2, maxWidth: 140, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{attachment.name}</span>
+                <span onClick={() => setAttachment(null)} style={{ fontSize: 12, color: C.text3, cursor: "pointer", padding: "0 2px" }}>×</span>
+              </div>
+            )}
+          </div>
+        )}
+        <div style={{ padding: "10px 14px", display: "flex", gap: 8, alignItems: "flex-end" }}>
+          <input ref={fileInputRef} type="file" onChange={handleFileSelect} style={{ display: "none" }} />
+          <span onClick={() => fileInputRef.current?.click()}
+            style={{ width: 36, height: 36, borderRadius: "50%", border: `0.5px solid ${C.border}`, color: C.text3, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, flexShrink: 0, cursor: "pointer" }}>＋</span>
+          <textarea value={input} onChange={e => setInput(e.target.value)} onKeyDown={handleKeyDown}
+            placeholder="say something to daddy..."
+            rows={1}
+            style={{ flex: 1, border: `0.5px solid ${C.border}`, borderRadius: 12, padding: "9px 12px", fontSize: 16, fontFamily: "inherit", resize: "none", outline: "none", background: C.surface, color: C.text1, lineHeight: 1.4, minHeight: 40, maxHeight: 120 }}
+            onFocus={e => e.target.style.borderColor = C.accent}
+            onBlur={e => e.target.style.borderColor = C.border} />
+          <button onClick={handleSend} disabled={isTyping}
+            style={{ width: 36, height: 36, borderRadius: "50%", border: "none", background: isTyping ? C.muted : C.accent, color: C.bg, cursor: isTyping ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, flexShrink: 0 }}>↑</button>
+        </div>
       </div>
 
       <BottomTabs active="chat" setPage={setPage} />
