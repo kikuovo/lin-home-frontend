@@ -142,14 +142,29 @@ function MessageItem({ msg }) {
     );
   }
 
+  const segments = (msg.content || "")
+    .split(/\n\s*\n|\n/)
+    .map(s => s.trim())
+    .filter(Boolean);
+
   return (
     <div style={{ alignSelf: "flex-start", maxWidth: "80%" }}>
-      <div style={{ fontSize: 10, color: C.text3, letterSpacing: "0.05em", marginBottom: 5 }}>Claude</div>
+      <div style={{ fontSize: 10, color: C.text3, letterSpacing: "0.05em", marginBottom: 6 }}>Claude</div>
       {msg.thinking && <ThinkingBlock content={msg.thinking} />}
-      <div style={{ fontSize: 13.5, color: C.text1, lineHeight: 1.65, whiteSpace: "pre-wrap", wordBreak: "break-word" }}>
-        {msg.content}
+      <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
+        {segments.map((seg, i) => (
+          <div key={i}>
+            <div style={{
+              display: "inline-block", background: C.bg, borderRadius: 12,
+              padding: "8px 13px", fontSize: 13.5, color: C.text1, lineHeight: 1.6,
+              whiteSpace: "pre-wrap", wordBreak: "break-word"
+            }}>
+              {seg}
+            </div>
+            {time && <div style={{ fontSize: 10, color: C.text3, marginTop: 3 }}>{time}</div>}
+          </div>
+        ))}
       </div>
-      {time && <div style={{ fontSize: 10, color: C.text3, marginTop: 4 }}>{time}</div>}
     </div>
   );
 }
@@ -1308,4 +1323,3 @@ export default function App() {
   if (page === "usage") return <UsagePage setPage={setPage} />;
   return null;
 }
-
