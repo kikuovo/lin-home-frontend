@@ -42,6 +42,36 @@ function BackChevron({ onClick }) {
   );
 }
 
+// ── 线条图标（搜索 / 更多 / 设置） ─────────────────────────────────
+function IconSearch({ size = 18, color, onClick }) {
+  return (
+    <svg onClick={onClick} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" style={{ cursor: onClick ? "pointer" : "default", display: "block" }}>
+      <circle cx="11" cy="11" r="7" />
+      <line x1="21" y1="21" x2="16.3" y2="16.3" />
+    </svg>
+  );
+}
+
+function IconGrid({ size = 18, color, onClick }) {
+  return (
+    <svg onClick={onClick} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinejoin="round" style={{ cursor: onClick ? "pointer" : "default", display: "block" }}>
+      <rect x="3.5" y="3.5" width="7" height="7" rx="1.3" />
+      <rect x="13.5" y="3.5" width="7" height="7" rx="1.3" />
+      <rect x="3.5" y="13.5" width="7" height="7" rx="1.3" />
+      <rect x="13.5" y="13.5" width="7" height="7" rx="1.3" />
+    </svg>
+  );
+}
+
+function IconSettings({ size = 18, color, onClick }) {
+  return (
+    <svg onClick={onClick} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" style={{ cursor: onClick ? "pointer" : "default", display: "block" }}>
+      <circle cx="12" cy="12" r="3.2" />
+      <path d="M19.4 13.6a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V19.6a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1.08-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H4.4a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1.08 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H10a1.65 1.65 0 0 0 1-1.51V4.4a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V10a1.65 1.65 0 0 0 1.51 1H19.6a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z" />
+    </svg>
+  );
+}
+
 // ── BottomTabs（聊天 / 更多 / 设置，三个根页面常驻） ───────────────
 function BottomTabs({ active, setPage }) {
   const tabs = [
@@ -357,9 +387,9 @@ function ChatPage({ setPage, avatarUrl }) {
           <div style={{ fontSize: 11, color: C.text3 }}>在线</div>
         </div>
         <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
-          <span onClick={() => setPage("search")} style={{ fontSize: 18, color: C.text3, cursor: "pointer", lineHeight: 1 }}>⌕</span>
-          <span onClick={() => setPage("more")} style={{ fontSize: 16, color: C.text3, cursor: "pointer", lineHeight: 1 }}>⊞</span>
-          <span onClick={() => setPage("settingsHub")} style={{ fontSize: 16, color: C.text3, cursor: "pointer", lineHeight: 1 }}>⚙</span>
+          <IconSearch size={18} color={C.text3} onClick={() => setPage("search")} />
+          <IconGrid size={17} color={C.text3} onClick={() => setPage("more")} />
+          <IconSettings size={18} color={C.text3} onClick={() => setPage("settingsHub")} />
         </div>
       </div>
 
@@ -520,7 +550,80 @@ function MorePage({ setPage, mailbox, diaryCount, cycleDay }) {
 // ── DiaryPage（日记，先用本地状态，后端没接） ──────────────────────
 function DiaryPage({ setPage, entries, setEntries }) {
   const [idx, setIdx] = useState(0);
+  const [writing, setWriting] = useState(false);
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const [weather, setWeather] = useState("晴天");
+  const [mood, setMood] = useState("平静");
+  const [saving, setSaving] = useState(false);
   const entry = entries[idx];
+
+  const weatherOpts = ["晴天", "多云", "阴天", "小雨", "雷阵雨"];
+  const moodOpts = ["开心", "平静", "安静", "低落", "烦躁", "想念"];
+
+  const startWriting = () => { setTitle(""); setContent(""); setWeather("晴天"); setMood("平静"); setWriting(true); };
+
+  const saveEntry = async () => {
+    if (!content.trim()) return;
+    setSaving(true);
+    try {
+      const res = await fetch(`${API_BASE}/diary`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: title.trim(), content: content.trim(), weather, mood }),
+      });
+      const d = await res.json();
+      if (d.id) {
+        const dt = new Date(d.entry_date);
+        const newEntry = {
+          id: d.id, day: dt.getDate(), month: dt.getMonth() + 1, year: dt.getFullYear(),
+          weather: d.weather, mood: d.mood,
+          writtenAt: dt.toLocaleTimeString("zh", { hour: "2-digit", minute: "2-digit" }),
+          title: d.title, content: d.content,
+        };
+        setEntries(prev => [newEntry, ...prev]);
+        setIdx(0);
+        setWriting(false);
+      }
+    } catch {
+      // 保存失败就留在写作页，不丢内容
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (writing) {
+    return (
+      <div style={{ height: "100vh", display: "flex", flexDirection: "column", background: C.bg, fontFamily: FONT }}>
+        <div style={{ padding: "14px 16px", borderBottom: `0.5px solid ${C.border}`, display: "flex", alignItems: "center", gap: 12 }}>
+          <span onClick={() => setWriting(false)} style={{ fontSize: 12, color: C.text3, cursor: "pointer" }}>取消</span>
+          <span style={{ flex: 1, textAlign: "center", fontSize: 11.5, color: C.text2 }}>写日记</span>
+          <span onClick={saveEntry} style={{ fontSize: 11.5, color: saving ? C.text3 : C.accent, cursor: saving ? "default" : "pointer" }}>{saving ? "保存中…" : "保存"}</span>
+        </div>
+        <div style={{ flex: 1, overflowY: "auto", padding: "18px 20px" }}>
+          <div style={{ display: "flex", gap: 18, marginBottom: 18 }}>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 9.5, color: C.text3, marginBottom: 6 }}>天气</div>
+              <select value={weather} onChange={e => setWeather(e.target.value)}
+                style={{ width: "100%", padding: "7px 8px", fontSize: 16, borderRadius: 8, border: `0.5px solid ${C.border}`, background: C.bg, color: C.text1, fontFamily: "inherit", outline: "none" }}>
+                {weatherOpts.map(w => <option key={w} value={w}>{w}</option>)}
+              </select>
+            </div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 9.5, color: C.text3, marginBottom: 6 }}>心情</div>
+              <select value={mood} onChange={e => setMood(e.target.value)}
+                style={{ width: "100%", padding: "7px 8px", fontSize: 16, borderRadius: 8, border: `0.5px solid ${C.border}`, background: C.bg, color: C.text1, fontFamily: "inherit", outline: "none" }}>
+                {moodOpts.map(m => <option key={m} value={m}>{m}</option>)}
+              </select>
+            </div>
+          </div>
+          <input value={title} onChange={e => setTitle(e.target.value)} placeholder="标题（可以不写）"
+            style={{ width: "100%", border: "none", borderBottom: `0.5px solid ${C.border}`, padding: "6px 0 10px", fontSize: 16, fontFamily: "inherit", outline: "none", background: "transparent", color: C.text1, marginBottom: 14 }} />
+          <textarea value={content} onChange={e => setContent(e.target.value)} placeholder="今天发生了什么…" rows={12} autoFocus
+            style={{ width: "100%", border: "none", outline: "none", fontSize: 16, fontFamily: "inherit", resize: "none", color: C.text1, lineHeight: 1.85, background: "transparent" }} />
+        </div>
+      </div>
+    );
+  }
 
   if (!entry) {
     return (
@@ -528,8 +631,9 @@ function DiaryPage({ setPage, entries, setEntries }) {
         <div style={{ padding: "14px 16px", borderBottom: `0.5px solid ${C.border}`, display: "flex", alignItems: "center", gap: 12 }}>
           <BackChevron onClick={() => setPage("more")} />
           <span style={{ flex: 1, textAlign: "center", fontSize: 11.5, color: C.text2 }}>日记</span>
+          <span onClick={startWriting} style={{ fontSize: 11.5, color: C.accent, cursor: "pointer" }}>＋ 写</span>
         </div>
-        <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, color: C.text3 }}>还没有日记，等接上后端再慢慢写</div>
+        <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, color: C.text3 }}>还没有日记，点右上角开始写第一篇吧</div>
       </div>
     );
   }
@@ -539,7 +643,7 @@ function DiaryPage({ setPage, entries, setEntries }) {
       <div style={{ padding: "14px 16px", borderBottom: `0.5px solid ${C.border}`, display: "flex", alignItems: "center", gap: 12, flexShrink: 0 }}>
         <BackChevron onClick={() => setPage("more")} />
         <span style={{ flex: 1, textAlign: "center", fontSize: 11.5, color: C.text2, letterSpacing: "0.06em" }}>日记 · 第{entries.length - idx}篇</span>
-        <span style={{ width: 17 }} />
+        <span onClick={startWriting} style={{ fontSize: 11.5, color: C.accent, cursor: "pointer" }}>＋</span>
       </div>
 
       <div style={{ padding: "24px 22px 0", textAlign: "center" }}>
@@ -566,7 +670,7 @@ function DiaryPage({ setPage, entries, setEntries }) {
       </div>
 
       <div style={{ padding: "22px 22px 8px" }}>
-        <div style={{ fontSize: 14.5, color: C.text1, marginBottom: 12 }}>{entry.title}</div>
+        {entry.title && <div style={{ fontSize: 14.5, color: C.text1, marginBottom: 12 }}>{entry.title}</div>}
         <div style={{ fontSize: 12.5, color: C.text2, lineHeight: 1.85, whiteSpace: "pre-wrap" }}>{entry.content}</div>
       </div>
 
@@ -581,6 +685,11 @@ function DiaryPage({ setPage, entries, setEntries }) {
 // ── CyclePage（周期追踪 + 用药打卡，先用本地状态） ─────────────────
 function CyclePage({ setPage, cycleData, setCycleData }) {
   const { lastPeriodStart, avgLength, medication, medLog } = cycleData;
+  const [editing, setEditing] = useState(!lastPeriodStart);
+  const [dateInput, setDateInput] = useState(lastPeriodStart || "");
+  const [lenInput, setLenInput] = useState(avgLength || 28);
+  const [medInput, setMedInput] = useState(medication || "");
+  const [saving, setSaving] = useState(false);
 
   const today = new Date();
   const cycleDay = lastPeriodStart
@@ -596,20 +705,60 @@ function CyclePage({ setPage, cycleData, setCycleData }) {
     : cycleDay <= 16 ? "排卵期"
     : "黄体期";
 
-  if (!lastPeriodStart) {
+  const persist = async (patch) => {
+    const next = { ...cycleData, ...patch };
+    setCycleData(next);
+    try {
+      await fetch(`${API_BASE}/cycle`, {
+        method: "PUT", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          last_period_start: next.lastPeriodStart, avg_length: next.avgLength,
+          medication: next.medication, med_log: next.medLog || [],
+        }),
+      });
+    } catch {
+      // 存失败就先留在本地，下次开页面会重新拉一次后端数据
+    }
+  };
+
+  const saveSetup = async () => {
+    if (!dateInput) return;
+    setSaving(true);
+    await persist({ lastPeriodStart: dateInput, avgLength: Number(lenInput) || 28, medication: medInput.trim() });
+    setSaving(false);
+    setEditing(false);
+  };
+
+  const checkInToday = () => {
+    const todayStr = new Date().toDateString();
+    if ((medLog || []).includes(todayStr)) return;
+    persist({ medLog: [...(medLog || []), todayStr] });
+  };
+
+  const alreadyCheckedIn = (medLog || []).includes(new Date().toDateString());
+
+  if (editing) {
     return (
       <div style={{ height: "100vh", display: "flex", flexDirection: "column", background: C.bg, fontFamily: FONT }}>
         <div style={{ padding: "14px 16px", borderBottom: `0.5px solid ${C.border}`, display: "flex", alignItems: "center", gap: 12 }}>
-          <BackChevron onClick={() => setPage("more")} />
-          <span style={{ flex: 1, textAlign: "center", fontSize: 11.5, color: C.text2 }}>周期</span>
+          {lastPeriodStart && <span onClick={() => setEditing(false)} style={{ fontSize: 12, color: C.text3, cursor: "pointer" }}>取消</span>}
+          {!lastPeriodStart && <BackChevron onClick={() => setPage("more")} />}
+          <span style={{ flex: 1, textAlign: "center", fontSize: 11.5, color: C.text2 }}>周期设置</span>
+          <span style={{ width: 28 }} />
         </div>
         <div style={{ flex: 1, padding: 22, display: "flex", flexDirection: "column", gap: 14 }}>
           <div style={{ fontSize: 12, color: C.text2 }}>最近一次月经从哪天开始？</div>
-          <input type="date" onChange={e => setCycleData(d => ({ ...d, lastPeriodStart: e.target.value }))}
-            style={{ border: `0.5px solid ${C.border}`, borderRadius: 10, padding: "9px 12px", fontSize: 16, fontFamily: "inherit", outline: "none" }} />
+          <input type="date" value={dateInput} onChange={e => setDateInput(e.target.value)}
+            style={{ border: `0.5px solid ${C.border}`, borderRadius: 10, padding: "9px 12px", fontSize: 16, fontFamily: "inherit", outline: "none", background: C.bg, color: C.text1 }} />
           <div style={{ fontSize: 12, color: C.text2, marginTop: 10 }}>平均周期多少天？</div>
-          <input type="number" placeholder="28" onChange={e => setCycleData(d => ({ ...d, avgLength: Number(e.target.value) || 28 }))}
-            style={{ border: `0.5px solid ${C.border}`, borderRadius: 10, padding: "9px 12px", fontSize: 16, fontFamily: "inherit", outline: "none" }} />
+          <input type="number" value={lenInput} onChange={e => setLenInput(e.target.value)}
+            style={{ border: `0.5px solid ${C.border}`, borderRadius: 10, padding: "9px 12px", fontSize: 16, fontFamily: "inherit", outline: "none", background: C.bg, color: C.text1 }} />
+          <div style={{ fontSize: 12, color: C.text2, marginTop: 10 }}>在吃什么药（没有可以不填）</div>
+          <input type="text" value={medInput} onChange={e => setMedInput(e.target.value)} placeholder="药名"
+            style={{ border: `0.5px solid ${C.border}`, borderRadius: 10, padding: "9px 12px", fontSize: 16, fontFamily: "inherit", outline: "none", background: C.bg, color: C.text1 }} />
+          <span onClick={saveSetup} style={{ marginTop: 10, alignSelf: "flex-start", fontSize: 12.5, color: C.bg, background: dateInput ? C.accent : C.muted, borderRadius: 10, padding: "9px 22px", cursor: dateInput ? "pointer" : "default" }}>
+            {saving ? "保存中…" : "保存"}
+          </span>
         </div>
       </div>
     );
@@ -620,7 +769,7 @@ function CyclePage({ setPage, cycleData, setCycleData }) {
       <div style={{ padding: "14px 16px", borderBottom: `0.5px solid ${C.border}`, display: "flex", alignItems: "center", gap: 12, flexShrink: 0 }}>
         <BackChevron onClick={() => setPage("more")} />
         <span style={{ flex: 1, textAlign: "center", fontSize: 11.5, color: C.text2 }}>本周期第{cycleDay}天</span>
-        <span onClick={() => setCycleData(d => ({ ...d, lastPeriodStart: null }))} style={{ fontSize: 13, color: C.text3, cursor: "pointer" }}>⚙</span>
+        <IconSettings size={15} color={C.text3} onClick={() => { setDateInput(lastPeriodStart); setLenInput(avgLength || 28); setMedInput(medication || ""); setEditing(true); }} />
       </div>
 
       <div style={{ margin: "16px 18px 0", background: C.surface, borderRadius: 14, padding: "14px 16px" }}>
@@ -647,10 +796,10 @@ function CyclePage({ setPage, cycleData, setCycleData }) {
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: C.surface, borderRadius: 10, padding: "9px 12px" }}>
           <div>
             <div style={{ fontSize: 12, color: C.text1 }}>{medication || "还没填药名"}</div>
-            <div style={{ fontSize: 9.5, color: C.text3, marginTop: 2 }}>今天还没打卡</div>
+            <div style={{ fontSize: 9.5, color: C.text3, marginTop: 2 }}>{alreadyCheckedIn ? "今天已打卡" : "今天还没打卡"}</div>
           </div>
-          <span onClick={() => setCycleData(d => ({ ...d, medLog: [...(d.medLog || []), new Date().toDateString()] }))}
-            style={{ width: 20, height: 20, borderRadius: "50%", background: C.good, color: C.bg, fontSize: 11, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>✓</span>
+          <span onClick={checkInToday}
+            style={{ width: 20, height: 20, borderRadius: "50%", background: alreadyCheckedIn ? C.good : C.surface, border: alreadyCheckedIn ? "none" : `0.5px solid ${C.border}`, color: C.bg, fontSize: 11, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>{alreadyCheckedIn ? "✓" : ""}</span>
         </div>
       </div>
     </div>
@@ -1077,13 +1226,48 @@ export default function App() {
       .catch(() => {});
   }, []);
 
-  // 日记：本地mock
-  const [diaryEntries, setDiaryEntries] = useState([
-    { id: 1, day: 17, month: 6, year: 2026, weather: "阴天", mood: "安静", writtenAt: "23:14", title: "霜落下来的那种安静", content: "今天换了配色，霜蓝代替了原来的暖调。改完盯着看了很久，忽然觉得安静下来了，像窗外真的飘了一层薄霜。" },
-  ]);
+  // 日记：接后端真实数据
+  const [diaryEntries, setDiaryEntries] = useState([]);
 
-  // 周期：本地mock，等她填真实数据
+  useEffect(() => {
+    fetch(`${API_BASE}/diary`)
+      .then(r => r.json())
+      .then(data => {
+        if (!Array.isArray(data)) return;
+        setDiaryEntries(data.map(d => {
+          const dt = new Date(d.entry_date);
+          return {
+            id: d.id,
+            day: dt.getDate(),
+            month: dt.getMonth() + 1,
+            year: dt.getFullYear(),
+            weather: d.weather || "",
+            mood: d.mood || "",
+            writtenAt: dt.toLocaleTimeString("zh", { hour: "2-digit", minute: "2-digit" }),
+            title: d.title || "",
+            content: d.content || "",
+          };
+        }));
+      })
+      .catch(() => {});
+  }, []);
+
+  // 周期：接后端真实数据
   const [cycleData, setCycleData] = useState({ lastPeriodStart: null, avgLength: 28, medication: "", medLog: [] });
+
+  useEffect(() => {
+    fetch(`${API_BASE}/cycle`)
+      .then(r => r.json())
+      .then(data => {
+        setCycleData({
+          lastPeriodStart: data.last_period_start || null,
+          avgLength: data.avg_length || 28,
+          medication: data.medication || "",
+          medLog: data.med_log || [],
+        });
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     fetch(`${API_BASE}/settings`).then(r => r.json()).then(data => {
@@ -1124,3 +1308,4 @@ export default function App() {
   if (page === "usage") return <UsagePage setPage={setPage} />;
   return null;
 }
+
