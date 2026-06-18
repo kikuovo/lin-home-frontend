@@ -176,12 +176,12 @@ function LandingPage({ setPage, mailbox }) {
 }
 
 // ── ChatPage ──────────────────────────────────────────────────
-function ChatPage({ setPage }) {
+function ChatPage({ setPage, avatarUrl }) {
   const [sessions, setSessions] = useState([]);
   const [activeId, setActiveId] = useState(null);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
-  const [model, setModel] = useState("deepseek-chat");
+  const [model, setModel] = useState("deepseek-reasoner");
   const [isTyping, setIsTyping] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -343,13 +343,24 @@ function ChatPage({ setPage }) {
         </div>
       </div>
 
-      {/* 顶部导航：裸图标，居中留空 */}
-      <div style={{ padding: "12px 16px", borderBottom: `0.5px solid ${C.border}`, display: "flex", alignItems: "center", background: C.bg, gap: 14, flexShrink: 0 }}>
-        <BackChevron onClick={() => setPage("landing")} />
-        <span onClick={() => setSidebarOpen(true)} style={{ fontSize: 14, color: C.text3, cursor: "pointer", letterSpacing: 1 }}>≡</span>
-        <span style={{ flex: 1 }} />
-        <span onClick={() => setPage("search")} style={{ fontSize: 13, color: C.text3, cursor: "pointer" }}>⌕</span>
-        <span onClick={() => setPage("memory")} style={{ fontSize: 10, color: C.text3, cursor: "pointer" }}>记忆</span>
+      {/* 顶部导航：头像+名字在左，功能图标在右 */}
+      <div style={{ padding: "10px 16px", borderBottom: `0.5px solid ${C.border}`, display: "flex", alignItems: "center", background: C.bg, gap: 10, flexShrink: 0 }}>
+        <div onClick={() => setSidebarOpen(true)} style={{ cursor: "pointer", flexShrink: 0 }}>
+          {avatarUrl ? (
+            <img src={avatarUrl} style={{ width: 36, height: 36, borderRadius: "50%", objectFit: "cover", display: "block" }} />
+          ) : (
+            <div style={{ width: 36, height: 36, borderRadius: "50%", background: C.accent, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, color: C.bg, fontWeight: 500 }}>C</div>
+          )}
+        </div>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: 14, fontWeight: 500, color: C.text1, lineHeight: 1.2 }}>Echo</div>
+          <div style={{ fontSize: 11, color: C.text3 }}>在线</div>
+        </div>
+        <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
+          <span onClick={() => setPage("search")} style={{ fontSize: 18, color: C.text3, cursor: "pointer", lineHeight: 1 }}>⌕</span>
+          <span onClick={() => setPage("more")} style={{ fontSize: 16, color: C.text3, cursor: "pointer", lineHeight: 1 }}>⊞</span>
+          <span onClick={() => setPage("settingsHub")} style={{ fontSize: 16, color: C.text3, cursor: "pointer", lineHeight: 1 }}>⚙</span>
+        </div>
       </div>
 
       {/* 消息区域 */}
@@ -401,7 +412,6 @@ function ChatPage({ setPage }) {
         </div>
       </div>
 
-      <BottomTabs active="chat" setPage={setPage} />
       <style>{globalStyle}</style>
     </div>
   );
@@ -805,19 +815,25 @@ function SettingsHubPage({ setPage, theme, setTheme }) {
 }
 
 // ── PersonaPage（原来的Settings页，改名归到设置hub下面） ───────────
-function PersonaPage({ setPage }) {
+function PersonaPage({ setPage, avatarUrl: initAvatarUrl, setAvatarUrl: setGlobalAvatarUrl }) {
   const [systemPrompt, setSystemPrompt] = useState("");
+  const [avatarInput, setAvatarInput] = useState(initAvatarUrl || "");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
-    fetch(`${API_BASE}/settings`).then(r => r.json()).then(data => { setSystemPrompt(data.system_prompt || ""); setLoading(false); });
+    fetch(`${API_BASE}/settings`).then(r => r.json()).then(data => {
+      setSystemPrompt(data.system_prompt || "");
+      setAvatarInput(data.avatar_url || "");
+      setLoading(false);
+    });
   }, []);
 
   const save = async () => {
     setSaving(true);
-    await fetch(`${API_BASE}/settings`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ system_prompt: systemPrompt }) });
+    await fetch(`${API_BASE}/settings`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ system_prompt: systemPrompt, avatar_url: avatarInput.trim() }) });
+    setGlobalAvatarUrl(avatarInput.trim());
     setSaving(false); setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   };
@@ -832,6 +848,19 @@ function PersonaPage({ setPage }) {
         </span>
       </div>
       <div style={{ flex: 1, overflowY: "auto", padding: 18 }}>
+        <div style={{ fontSize: 10, color: C.text3, marginBottom: 8, letterSpacing: "0.08em" }}>头像链接</div>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
+          {avatarInput ? (
+            <img src={avatarInput} style={{ width: 42, height: 42, borderRadius: "50%", objectFit: "cover", flexShrink: 0 }} onError={e => e.target.style.display = "none"} />
+          ) : (
+            <div style={{ width: 42, height: 42, borderRadius: "50%", background: C.surface, border: `0.5px solid ${C.border}`, flexShrink: 0 }} />
+          )}
+          <input value={avatarInput} onChange={e => setAvatarInput(e.target.value)}
+            placeholder="粘贴图片链接…"
+            style={{ flex: 1, border: `0.5px solid ${C.border}`, borderRadius: 10, padding: "8px 12px", fontSize: 16, fontFamily: "inherit", outline: "none", background: C.bg, color: C.text1 }}
+            onFocus={e => e.target.style.borderColor = C.accent}
+            onBlur={e => e.target.style.borderColor = C.border} />
+        </div>
         <div style={{ fontSize: 10, color: C.text3, marginBottom: 8, letterSpacing: "0.08em" }}>角色设定</div>
         {loading ? (
           <div style={{ fontSize: 13, color: C.text3 }}>加载中…</div>
@@ -1028,6 +1057,7 @@ export default function App() {
   const [driveState, setDriveState] = useState({});
   const [driveLoading, setDriveLoading] = useState(true);
   const [theme, setTheme] = useState("日间");
+  const [avatarUrl, setAvatarUrl] = useState("");
 
   // 留言：现在接的是真实后端 /mailbox 接口了
   const [mailbox, setMailbox] = useState([]);
@@ -1056,6 +1086,12 @@ export default function App() {
   const [cycleData, setCycleData] = useState({ lastPeriodStart: null, avgLength: 28, medication: "", medLog: [] });
 
   useEffect(() => {
+    fetch(`${API_BASE}/settings`).then(r => r.json()).then(data => {
+      if (data.avatar_url) setAvatarUrl(data.avatar_url);
+    }).catch(() => {});
+  }, []);
+
+  useEffect(() => {
     fetch(`${API_BASE}/drive-state`)
       .then(r => r.json())
       .then(data => { setDriveState(data); setDriveLoading(false); })
@@ -1074,7 +1110,7 @@ export default function App() {
     : null;
 
   if (page === "landing") return <LandingPage setPage={setPage} mailbox={mailbox} />;
-  if (page === "chat") return <ChatPage setPage={setPage} />;
+  if (page === "chat") return <ChatPage setPage={setPage} avatarUrl={avatarUrl} />;
   if (page === "search") return <SearchPage setPage={setPage} />;
   if (page === "more") return <MorePage setPage={setPage} mailbox={mailbox} diaryCount={diaryEntries.length} cycleDay={cycleDay} />;
   if (page === "diary") return <DiaryPage setPage={setPage} entries={diaryEntries} setEntries={setDiaryEntries} />;
@@ -1082,7 +1118,7 @@ export default function App() {
   if (page === "mailboxFull") return <MailboxPage setPage={setPage} mailbox={mailbox} setMailbox={setMailbox} />;
   if (page === "status") return <StatusPage setPage={setPage} driveState={driveState} driveLoading={driveLoading} />;
   if (page === "settingsHub") return <SettingsHubPage setPage={setPage} theme={theme} setTheme={setTheme} />;
-  if (page === "persona") return <PersonaPage setPage={setPage} />;
+  if (page === "persona") return <PersonaPage setPage={setPage} avatarUrl={avatarUrl} setAvatarUrl={setAvatarUrl} />;
   if (page === "data") return <DataPage setPage={setPage} />;
   if (page === "memory") return <MemoryPage setPage={setPage} />;
   if (page === "usage") return <UsagePage setPage={setPage} />;
