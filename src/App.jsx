@@ -1701,6 +1701,17 @@ export default function App() {
   // 首次挂载时注入初始主题
   useEffect(() => { applyTheme(theme); }, []);
 
+  // 全局注入style（CSS变量、字体、scrollbar等）
+  useEffect(() => {
+    let el = document.getElementById("echo-global-style");
+    if (!el) {
+      el = document.createElement("style");
+      el.id = "echo-global-style";
+      document.head.appendChild(el);
+    }
+    el.textContent = globalStyle;
+  }, []);
+
   // 留言：现在接的是真实后端 /mailbox 接口了
   const [mailbox, setMailbox] = useState([]);
 
