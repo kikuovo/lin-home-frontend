@@ -546,6 +546,7 @@ function SearchPage({ setPage }) {
   const [results, setResults] = useState([]);
   const [searched, setSearched] = useState(false);
   const [errored, setErrored] = useState(false);
+  const [showDate, setShowDate] = useState(false);
 
   const doSearch = async () => {
     if (!query.trim()) return;
@@ -582,12 +583,16 @@ function SearchPage({ setPage }) {
           <input value={query} onChange={e => setQuery(e.target.value)} onKeyDown={e => e.key === "Enter" && doSearch()}
             placeholder="搜索聊天记录" style={{ border: "none", outline: "none", background: "transparent", fontSize: 16, color: "var(--c-text1)", flex: 1, fontFamily: "inherit" }} />
         </div>
+        <span onClick={() => setShowDate(v => !v)} style={{ border: `0.5px solid ${showDate ? "var(--c-accent)" : "var(--c-border)"}`, borderRadius: 10, padding: "7px 12px", fontSize: 11.5, color: showDate ? "var(--c-accent)" : "var(--c-text3)", cursor: "pointer", whiteSpace: "nowrap" }}>日期</span>
         <span onClick={doSearch} style={{ border: `0.5px solid var(--c-border)`, borderRadius: 10, padding: "7px 14px", fontSize: 11.5, color: "var(--c-text2)", cursor: "pointer" }}>查找</span>
       </div>
 
-      <div style={{ padding: "0 16px 14px", display: "flex", gap: 8 }}>
-        <input type="date" value={date} onChange={e => setDate(e.target.value)} style={{ flex: 1, border: `0.5px solid var(--c-border)`, borderRadius: 8, padding: "6px 10px", fontSize: 16, color: "var(--c-text2)", fontFamily: "inherit", outline: "none", background: "transparent" }} />
-      </div>
+      {showDate && (
+        <div style={{ padding: "0 16px 10px" }}>
+          <input type="date" value={date} onChange={e => setDate(e.target.value)}
+            style={{ width: "100%", border: `0.5px solid var(--c-border)`, borderRadius: 8, padding: "7px 12px", fontSize: 16, color: "var(--c-text2)", fontFamily: "inherit", outline: "none", background: "var(--c-surface)" }} />
+        </div>
+      )}
 
       <div style={{ flex: 1, overflowY: "auto", background: "var(--c-surface)", padding: "14px 16px" }}>
         {!searched ? (
@@ -1468,12 +1473,25 @@ function PersonaPage({ setPage, avatarUrl: initAvatarUrl, setAvatarUrl: setGloba
     });
   }, []);
 
+  const [saveError, setSaveError] = useState(false);
+
   const save = async () => {
-    setSaving(true);
-    await fetch(`${API_BASE}/settings`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ system_prompt: systemPrompt, avatar_url: avatarInput.trim() }) });
-    setGlobalAvatarUrl(avatarInput.trim());
-    setSaving(false); setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+    setSaving(true); setSaveError(false);
+    try {
+      const res = await fetch(`${API_BASE}/settings`, {
+        method: "PUT", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ system_prompt: systemPrompt, avatar_url: avatarInput.trim() }),
+      });
+      if (!res.ok) throw new Error("failed");
+      setGlobalAvatarUrl(avatarInput.trim());
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    } catch {
+      setSaveError(true);
+      setTimeout(() => setSaveError(false), 3000);
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -1481,8 +1499,8 @@ function PersonaPage({ setPage, avatarUrl: initAvatarUrl, setAvatarUrl: setGloba
       <div style={{ padding: "14px 16px", borderBottom: `0.5px solid var(--c-border)`, display: "flex", alignItems: "center", gap: 12 }}>
         <BackChevron onClick={() => setPage("settingsHub")} />
         <div style={{ flex: 1, textAlign: "center", fontSize: 12.5, color: "var(--c-text1)" }}>人格</div>
-        <span onClick={save} style={{ cursor: "pointer", color: saved ? C.good : "var(--c-accent)", fontSize: 11.5 }}>
-          {saved ? "已保存 ✓" : saving ? "保存中…" : "保存"}
+        <span onClick={save} style={{ cursor: "pointer", color: saveError ? "var(--c-warn)" : saved ? "var(--c-good)" : "var(--c-accent)", fontSize: 11.5 }}>
+          {saveError ? "保存失败" : saved ? "已保存 ✓" : saving ? "保存中…" : "保存"}
         </span>
       </div>
       <div style={{ flex: 1, overflowY: "auto", padding: 18 }}>
