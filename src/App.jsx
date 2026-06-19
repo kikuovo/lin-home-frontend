@@ -988,15 +988,15 @@ function DiaryPage({ setPage, entries, setEntries }) {
 
   // ── 阅读页 ──
   const entryDate = new Date(entry.year, entry.month - 1, entry.day);
-  const weekday = WEEKDAYS[entryDate.getDay()];
+  const weekday = WEEKDAYS[entryDate.getDay()] || "";
   const vol = Math.ceil((entries.length - idx) / 10);
-  const册 = entries.length - idx;
+  const entryNum = entries.length - idx;
 
   return (
     <div style={{ height: "100vh", display: "flex", flexDirection: "column", background: "var(--c-bg)", fontFamily: FONT }}>
       <div style={{ padding: "12px 16px", borderBottom: `0.5px solid var(--c-border)`, display: "flex", alignItems: "center", gap: 12, flexShrink: 0 }}>
         <BackChevron onClick={() => setPage("more")} />
-        <span style={{ flex: 1, textAlign: "center", fontSize: 10.5, color: "var(--c-text3)", letterSpacing: "0.08em" }}>第 {vol} 卷 — 第 {册} 册</span>
+        <span style={{ flex: 1, textAlign: "center", fontSize: 10.5, color: "var(--c-text3)", letterSpacing: "0.08em" }}>第 {vol} 卷 — 第 {entryNum} 册</span>
         <span onClick={startWriting} style={{ fontSize: 11.5, color: "var(--c-accent)", cursor: "pointer" }}>＋</span>
       </div>
 
