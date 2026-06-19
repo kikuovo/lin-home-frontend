@@ -775,7 +775,7 @@ function ReminderPage({ setPage, reminders, setReminders }) {
           <div>
             <div style={{ fontSize: 9, color: "var(--c-text3)", letterSpacing: "0.08em", marginBottom: 8 }}>提醒内容</div>
             <textarea value={newContent} onChange={e => setNewContent(e.target.value)} placeholder="写下要提醒自己的事…" rows={3} autoFocus
-              style={{ width: "100%", border: "none", borderBottom: `0.5px solid var(--c-border)`, outline: "none", fontSize: 13.5, fontFamily: "inherit", resize: "none", color: "var(--c-text1)", lineHeight: 1.7, background: "transparent", paddingBottom: 10 }} />
+              style={{ width: "100%", border: "none", borderBottom: `0.5px solid var(--c-border)`, outline: "none", fontSize: 16, fontFamily: "inherit", resize: "none", color: "var(--c-text1)", lineHeight: 1.7, background: "transparent", paddingBottom: 10 }} />
           </div>
           <div>
             <div style={{ fontSize: 9, color: "var(--c-text3)", letterSpacing: "0.08em", marginBottom: 8 }}>截止日期（可以不填）</div>
@@ -783,6 +783,7 @@ function ReminderPage({ setPage, reminders, setReminders }) {
               style={{ border: `0.5px solid var(--c-border)`, borderRadius: 10, padding: "8px 12px", fontSize: 16, fontFamily: "inherit", outline: "none", background: "var(--c-bg)", color: newDueDate ? "var(--c-text1)" : "var(--c-text3)", width: "100%" }} />
           </div>
         </div>
+        <style>{globalStyle}</style>
       </div>
     );
   }
@@ -842,6 +843,7 @@ function ReminderPage({ setPage, reminders, setReminders }) {
           </>
         )}
       </div>
+      <style>{globalStyle}</style>
     </div>
   );
 }
@@ -960,6 +962,7 @@ function DiaryPage({ setPage, entries, setEntries }) {
             <div style={{ fontSize: 10, color: "var(--c-text3)", textAlign: "right", marginTop: 8 }}>{content.length} 字</div>
           )}
         </div>
+        <style>{globalStyle}</style>
       </div>
     );
   }
@@ -978,6 +981,7 @@ function DiaryPage({ setPage, entries, setEntries }) {
           <div style={{ fontSize: 12, color: "var(--c-text3)" }}>还没有日记</div>
           <span onClick={startWriting} style={{ fontSize: 11.5, color: "var(--c-accent)", border: `0.5px solid var(--c-accent)`, borderRadius: 18, padding: "6px 20px", cursor: "pointer" }}>开始写第一篇</span>
         </div>
+        <style>{globalStyle}</style>
       </div>
     );
   }
@@ -1041,6 +1045,7 @@ function DiaryPage({ setPage, entries, setEntries }) {
             style={{ fontSize: 11, color: idx > 0 ? "var(--c-text2)" : "var(--c-muted)", cursor: idx > 0 ? "pointer" : "default" }}>下一篇</span>
         </div>
       </div>
+      <style>{globalStyle}</style>
     </div>
   );
 }
