@@ -577,14 +577,16 @@ function SearchPage({ setPage }) {
         <span style={{ width: 17 }} />
       </div>
 
-      <div style={{ padding: "12px 16px 8px", display: "flex", gap: 8 }}>
-        <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 6, border: `0.5px solid var(--c-border)`, borderRadius: 10, padding: "7px 11px", background: "var(--c-surface)" }}>
+      <div style={{ padding: "12px 16px 0" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 6, border: `0.5px solid var(--c-border)`, borderRadius: 10, padding: "8px 12px", background: "var(--c-surface)" }}>
           <span style={{ fontSize: 11, color: "var(--c-text3)" }}>⌕</span>
           <input value={query} onChange={e => setQuery(e.target.value)} onKeyDown={e => e.key === "Enter" && doSearch()}
             placeholder="搜索聊天记录" style={{ border: "none", outline: "none", background: "transparent", fontSize: 16, color: "var(--c-text1)", flex: 1, fontFamily: "inherit" }} />
         </div>
-        <span onClick={() => setShowDate(v => !v)} style={{ border: `0.5px solid ${showDate ? "var(--c-accent)" : "var(--c-border)"}`, borderRadius: 10, padding: "7px 12px", fontSize: 11.5, color: showDate ? "var(--c-accent)" : "var(--c-text3)", cursor: "pointer", whiteSpace: "nowrap" }}>日期</span>
-        <span onClick={doSearch} style={{ border: `0.5px solid var(--c-border)`, borderRadius: 10, padding: "7px 14px", fontSize: 11.5, color: "var(--c-text2)", cursor: "pointer" }}>查找</span>
+        <div style={{ display: "flex", gap: 8, marginTop: 8, marginBottom: 10 }}>
+          <span onClick={() => setShowDate(v => !v)} style={{ border: `0.5px solid ${showDate ? "var(--c-accent)" : "var(--c-border)"}`, borderRadius: 8, padding: "6px 14px", fontSize: 11.5, color: showDate ? "var(--c-accent)" : "var(--c-text3)", cursor: "pointer" }}>日期筛选</span>
+          <span onClick={doSearch} style={{ flex: 1, textAlign: "center", border: `0.5px solid var(--c-border)`, borderRadius: 8, padding: "6px 0", fontSize: 11.5, color: "var(--c-text2)", cursor: "pointer", background: "var(--c-surface)" }}>查找</span>
+        </div>
       </div>
 
       {showDate && (
