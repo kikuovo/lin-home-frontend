@@ -57,6 +57,20 @@ const globalStyle = `
   ::-webkit-scrollbar { width: 3px; }
   ::-webkit-scrollbar-thumb { background: var(--c-muted); border-radius: 3px; }
   @keyframes blink { 0%,80%,100%{opacity:.2} 40%{opacity:1} }
+  input, textarea, select { font-size: 16px; }
+  :root {
+    --c-bg: #FAFCFF;
+    --c-surface: #F0F4FA;
+    --c-border: #E0E6F0;
+    --c-muted: #D0D8E5;
+    --c-accent: #BFC8D5;
+    --c-text1: #3d4451;
+    --c-text2: #686E7A;
+    --c-text3: #9aa3ad;
+    --c-bubble: #5b6472;
+    --c-good: #7faa9e;
+    --c-warn: #a08fb0;
+  }
 `;
 
 // ── BackChevron（裸图标返回） ───────────────────────────────────
@@ -903,7 +917,7 @@ function DiaryPage({ setPage, entries, setEntries }) {
             {mood && <span style={{ display: "inline-block", width: 6, height: 6, borderRadius: "50%", background: moodDot, marginRight: 5, verticalAlign: "middle" }} />}
             写日记
           </span>
-          <span onClick={saveEntry} style={{ fontSize: 11.5, color: saving ? C.text3 : "var(--c-accent)", cursor: saving ? "default" : "pointer" }}>{saving ? "保存中…" : "保存"}</span>
+          <span onClick={saveEntry} style={{ fontSize: 11.5, color: saving ? "var(--c-text3)" : "var(--c-accent)", cursor: saving ? "default" : "pointer" }}>{saving ? "保存中…" : "保存"}</span>
         </div>
 
         <div style={{ flex: 1, overflowY: "auto", padding: "20px 22px" }}>
@@ -913,7 +927,7 @@ function DiaryPage({ setPage, entries, setEntries }) {
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
               {WEATHER_OPTS.map(w => (
                 <span key={w.label} onClick={() => setWeather(w.label)}
-                  style={{ fontSize: 12, padding: "5px 12px", borderRadius: 20, border: `0.5px solid ${weather === w.label ? C.accent : "var(--c-border)"}`, background: weather === w.label ? C.surface : "transparent", color: weather === w.label ? C.text1 : "var(--c-text3)", cursor: "pointer", transition: "all 0.15s" }}>
+                  style={{ fontSize: 12, padding: "5px 12px", borderRadius: 20, border: `0.5px solid ${weather === w.label ? "var(--c-accent)" : "var(--c-border)"}`, background: weather === w.label ? "var(--c-surface)" : "transparent", color: weather === w.label ? "var(--c-text1)" : "var(--c-text3)", cursor: "pointer", transition: "all 0.15s" }}>
                   {w.emoji} {w.label}
                 </span>
               ))}
@@ -926,7 +940,7 @@ function DiaryPage({ setPage, entries, setEntries }) {
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
               {MOOD_OPTS.map(m => (
                 <span key={m.label} onClick={() => setMood(m.label)}
-                  style={{ fontSize: 12, padding: "5px 12px", borderRadius: 20, border: `0.5px solid ${mood === m.label ? m.dot : "var(--c-border)"}`, background: mood === m.label ? C.surface : "transparent", color: mood === m.label ? C.text1 : "var(--c-text3)", cursor: "pointer", transition: "all 0.15s", display: "flex", alignItems: "center", gap: 5 }}>
+                  style={{ fontSize: 12, padding: "5px 12px", borderRadius: 20, border: `0.5px solid ${mood === m.label ? m.dot : "var(--c-border)"}`, background: mood === m.label ? "var(--c-surface)" : "transparent", color: mood === m.label ? "var(--c-text1)" : "var(--c-text3)", cursor: "pointer", transition: "all 0.15s", display: "flex", alignItems: "center", gap: 5 }}>
                   <span style={{ width: 6, height: 6, borderRadius: "50%", background: m.dot, display: "inline-block", flexShrink: 0 }} />
                   {m.label}
                 </span>
