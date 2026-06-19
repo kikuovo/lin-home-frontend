@@ -597,35 +597,242 @@ function SearchPage({ setPage }) {
   );
 }
 
-// ── MorePage（宫格：日记 / 周期 / 留言 / 状态） ────────────────────
-function MorePage({ setPage, mailbox, diaryCount, cycleDay }) {
+// ── MorePage ────────────────────────────────────────────────────
+function MorePage({ setPage, mailbox, diaryCount, cycleDay, cycleAvgLength, reminders }) {
   const unread = (mailbox || []).filter(m => !m.read).length;
-  const cards = [
-    { key: "diary", label: "日记", sub: diaryCount ? `第${diaryCount}篇` : "还没写" },
-    { key: "cycle", label: "周期", sub: cycleDay ? `第${cycleDay}天` : "还没设置" },
-    { key: "mailboxFull", label: "留言", sub: unread > 0 ? `${unread}条未读` : "没有新留言" },
-    { key: "status", label: "状态", sub: "此刻的驱动" },
+  const pendingReminders = (reminders || []).filter(r => r.status === "pending").length;
+  const now = new Date();
+  const hour = now.getHours();
+  const timeStr = now.toLocaleTimeString("zh", { hour: "2-digit", minute: "2-digit", hour12: false });
+  const dateStr = now.toLocaleDateString("zh", { month: "numeric", day: "numeric" });
+  const weekdays = ["日","一","二","三","四","五","六"];
+  const weekStr = "周" + weekdays[now.getDay()];
+  const dayNum = now.getDate();
+  const greeting = hour >= 23 || hour < 5 ? "深夜了" : hour < 11 ? "早上好" : hour < 14 ? "中午好" : hour < 18 ? "下午好" : "晚上好";
+  const daysLeft = cycleDay && cycleAvgLength ? (cycleAvgLength - cycleDay) : null;
+
+  const topCards = [
+    { key: "diary", label: "日记", sub: diaryCount ? `第 ${diaryCount} 篇` : "还没写", dark: true },
+    { key: "cycle", label: "周期", sub: cycleDay ? `第 ${cycleDay} 天` : "还没设置", dark: false },
+    { key: "reminder", label: "提醒", sub: pendingReminders > 0 ? `${pendingReminders} 条待处理` : "没有待办", dark: false },
+    { key: "mailboxFull", label: "留言", sub: unread > 0 ? `${unread} 条未读` : "没有新留言", dark: false },
   ];
+
   return (
     <div style={{ height: "100vh", display: "flex", flexDirection: "column", background: "var(--c-bg)", fontFamily: FONT }}>
-      <div style={{ padding: "14px 16px", borderBottom: `0.5px solid var(--c-border)`, textAlign: "center", flexShrink: 0 }}>
-        <span style={{ fontSize: 13, color: "var(--c-text1)", letterSpacing: "0.04em" }}>更多</span>
+
+      <div style={{ padding: "13px 18px", borderBottom: `0.5px solid var(--c-border)`, display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--c-text3)" strokeWidth="1.6" strokeLinecap="round">
+          <line x1="3" y1="7" x2="21" y2="7"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="17" x2="21" y2="17"/>
+        </svg>
+        <span style={{ fontSize: 10.5, color: "var(--c-text3)", letterSpacing: "0.12em" }}>ECHO · FUNCTION</span>
+        <IconSearch size={17} color="var(--c-text3)" onClick={() => setPage("search")} />
       </div>
-      <div style={{ flex: 1, padding: 18, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, overflowY: "auto" }}>
-        {cards.map(c => (
-          <div key={c.key} onClick={() => setPage(c.key)} style={{ background: "var(--c-surface)", borderRadius: 14, padding: "16px 14px", display: "flex", flexDirection: "column", gap: 8, cursor: "pointer" }}>
-            <span style={{ fontSize: 13, color: "var(--c-text1)" }}>{c.label}</span>
-            <span style={{ fontSize: 9.5, color: "var(--c-text3)" }}>{c.sub}</span>
+
+      <div style={{ flex: 1, overflowY: "auto" }}>
+
+        <div style={{ padding: "22px 20px 16px", position: "relative", overflow: "hidden" }}>
+          <span style={{ position: "absolute", left: 14, top: 6, fontFamily: "'Noto Serif SC', serif", fontSize: 68, color: "var(--c-border)", fontWeight: 400, lineHeight: 1, userSelect: "none", pointerEvents: "none" }}>{dayNum}</span>
+          <div style={{ position: "relative" }}>
+            <div style={{ fontSize: 9, color: "var(--c-text3)", letterSpacing: "0.1em", marginBottom: 4 }}>{greeting}</div>
+            <div style={{ fontFamily: "'Noto Serif SC', serif", fontSize: 40, color: "var(--c-text1)", fontWeight: 400, lineHeight: 1, letterSpacing: "0.02em" }}>{timeStr}</div>
+            <div style={{ fontSize: 10, color: "var(--c-text3)", marginTop: 6, fontStyle: "italic" }}>{dateStr} · {weekStr}</div>
           </div>
-        ))}
+        </div>
+
+        {/* 2×2卡片 */}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, padding: "0 16px 10px" }}>
+          {topCards.map(c => (
+            <div key={c.key} onClick={() => setPage(c.key)}
+              style={{ background: c.dark ? "var(--c-text1)" : "var(--c-surface)", borderRadius: 14, padding: "15px 14px", cursor: "pointer" }}>
+              <div style={{ fontSize: 12, color: c.dark ? "var(--c-bg)" : "var(--c-text1)", marginBottom: 6 }}>{c.label}</div>
+              <div style={{ fontSize: 9.5, color: c.dark ? "var(--c-accent)" : "var(--c-text3)" }}>{c.sub}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* 状态全宽卡片 */}
+        <div style={{ padding: "0 16px 14px" }}>
+          <div onClick={() => setPage("status")} style={{ background: "var(--c-surface)", borderRadius: 14, padding: "15px 14px", cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div>
+              <div style={{ fontSize: 12, color: "var(--c-text1)", marginBottom: 6 }}>状态</div>
+              <div style={{ fontSize: 9.5, color: "var(--c-text3)" }}>此刻的驱动</div>
+            </div>
+            <span style={{ fontSize: 13, color: "var(--c-text3)" }}>›</span>
+          </div>
+        </div>
+
+        {/* 胶囊info */}
+        <div style={{ padding: "0 16px 18px", display: "flex", gap: 8, flexWrap: "wrap" }}>
+          {daysLeft !== null && (
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 6, border: `0.5px solid var(--c-border)`, borderRadius: 20, padding: "6px 14px", fontSize: 11, color: "var(--c-text2)", background: "var(--c-bg)" }}>
+              <span style={{ fontSize: 9.5, color: "var(--c-text3)" }}>周期</span>预计 {daysLeft} 天后
+            </span>
+          )}
+          {diaryCount > 0 && (
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 6, border: `0.5px solid var(--c-border)`, borderRadius: 20, padding: "6px 14px", fontSize: 11, color: "var(--c-text2)", background: "var(--c-bg)" }}>
+              <span style={{ fontSize: 9.5, color: "var(--c-text3)" }}>日记</span>共 {diaryCount} 篇
+            </span>
+          )}
+          {pendingReminders > 0 && (
+            <span onClick={() => setPage("reminder")} style={{ display: "inline-flex", alignItems: "center", gap: 6, border: `0.5px solid var(--c-border)`, borderRadius: 20, padding: "6px 14px", fontSize: 11, color: "var(--c-text2)", background: "var(--c-bg)", cursor: "pointer" }}>
+              <span style={{ fontSize: 9.5, color: "var(--c-text3)" }}>提醒</span>{pendingReminders} 条待处理
+            </span>
+          )}
+          {unread > 0 && (
+            <span onClick={() => setPage("mailboxFull")} style={{ display: "inline-flex", alignItems: "center", gap: 6, border: `0.5px solid var(--c-border)`, borderRadius: 20, padding: "6px 14px", fontSize: 11, color: "var(--c-text2)", background: "var(--c-bg)", cursor: "pointer" }}>
+              <span style={{ fontSize: 9.5, color: "var(--c-text3)" }}>留言</span>{unread} 条未读
+            </span>
+          )}
+        </div>
+
       </div>
+
       <BottomTabs active="more" setPage={setPage} />
       <style>{globalStyle}</style>
     </div>
   );
 }
 
-// ── DiaryPage ──────────────────────────────────────────────────
+// ── ReminderPage ───────────────────────────────────────────────
+function ReminderPage({ setPage, reminders, setReminders }) {
+  const [adding, setAdding] = useState(false);
+  const [newContent, setNewContent] = useState("");
+  const [newDueDate, setNewDueDate] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const isOverdue = (due) => due && new Date(due) < today;
+
+  const pending = (reminders || [])
+    .filter(r => r.status === "pending")
+    .sort((a, b) => {
+      if (!a.due_date && !b.due_date) return 0;
+      if (!a.due_date) return 1;
+      if (!b.due_date) return -1;
+      return new Date(a.due_date) - new Date(b.due_date);
+    });
+
+  const done = (reminders || []).filter(r => r.status === "done");
+
+  const addReminder = async () => {
+    if (!newContent.trim()) return;
+    setSaving(true);
+    try {
+      const res = await fetch(`${API_BASE}/reminders`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: newContent.trim(), due_date: newDueDate || null }),
+      });
+      const d = await res.json();
+      if (d.id) {
+        setReminders(prev => [d, ...prev]);
+        setNewContent(""); setNewDueDate(""); setAdding(false);
+      }
+    } catch {} finally { setSaving(false); }
+  };
+
+  const markDone = async (id) => {
+    await fetch(`${API_BASE}/reminders/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status: "done" }) });
+    setReminders(prev => prev.map(r => r.id === id ? { ...r, status: "done" } : r));
+  };
+
+  const deleteReminder = async (id) => {
+    await fetch(`${API_BASE}/reminders/${id}`, { method: "DELETE" });
+    setReminders(prev => prev.filter(r => r.id !== id));
+  };
+
+  const fmtDate = (d) => {
+    if (!d) return null;
+    const dt = new Date(d);
+    return `${dt.getMonth() + 1}月${dt.getDate()}日`;
+  };
+
+  if (adding) {
+    return (
+      <div style={{ height: "100vh", display: "flex", flexDirection: "column", background: "var(--c-bg)", fontFamily: FONT }}>
+        <div style={{ padding: "12px 16px", borderBottom: `0.5px solid var(--c-border)`, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <span onClick={() => { setAdding(false); setNewContent(""); setNewDueDate(""); }} style={{ fontSize: 12, color: "var(--c-text3)", cursor: "pointer" }}>取消</span>
+          <span style={{ fontSize: 11.5, color: "var(--c-text2)" }}>新提醒</span>
+          <span onClick={addReminder} style={{ fontSize: 11.5, color: saving ? "var(--c-text3)" : "var(--c-accent)", cursor: saving ? "default" : "pointer" }}>{saving ? "保存中…" : "保存"}</span>
+        </div>
+        <div style={{ flex: 1, padding: "20px 18px", display: "flex", flexDirection: "column", gap: 20 }}>
+          <div>
+            <div style={{ fontSize: 9, color: "var(--c-text3)", letterSpacing: "0.08em", marginBottom: 8 }}>提醒内容</div>
+            <textarea value={newContent} onChange={e => setNewContent(e.target.value)} placeholder="写下要提醒自己的事…" rows={3} autoFocus
+              style={{ width: "100%", border: "none", borderBottom: `0.5px solid var(--c-border)`, outline: "none", fontSize: 13.5, fontFamily: "inherit", resize: "none", color: "var(--c-text1)", lineHeight: 1.7, background: "transparent", paddingBottom: 10 }} />
+          </div>
+          <div>
+            <div style={{ fontSize: 9, color: "var(--c-text3)", letterSpacing: "0.08em", marginBottom: 8 }}>截止日期（可以不填）</div>
+            <input type="date" value={newDueDate} onChange={e => setNewDueDate(e.target.value)}
+              style={{ border: `0.5px solid var(--c-border)`, borderRadius: 10, padding: "8px 12px", fontSize: 16, fontFamily: "inherit", outline: "none", background: "var(--c-bg)", color: newDueDate ? "var(--c-text1)" : "var(--c-text3)", width: "100%" }} />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ height: "100vh", display: "flex", flexDirection: "column", background: "var(--c-bg)", fontFamily: FONT }}>
+      <div style={{ padding: "12px 16px", borderBottom: `0.5px solid var(--c-border)`, display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
+        <BackChevron onClick={() => setPage("more")} />
+        <span style={{ fontSize: 11.5, color: "var(--c-text2)" }}>提醒</span>
+        <span onClick={() => setAdding(true)} style={{ fontSize: 20, color: "var(--c-accent)", cursor: "pointer", lineHeight: 1 }}>＋</span>
+      </div>
+
+      <div style={{ flex: 1, overflowY: "auto", padding: "14px 14px" }}>
+
+        {pending.length === 0 && done.length === 0 && (
+          <div style={{ textAlign: "center", padding: "50px 0", fontSize: 12, color: "var(--c-text3)" }}>没有提醒，点右上角添加</div>
+        )}
+
+        {pending.length > 0 && (
+          <>
+            <div style={{ fontSize: 9, color: "var(--c-text3)", letterSpacing: "0.08em", marginBottom: 10, padding: "0 2px" }}>待处理</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 9, marginBottom: 18 }}>
+              {pending.map(r => {
+                const overdue = isOverdue(r.due_date);
+                return (
+                  <div key={r.id} style={{ background: "var(--c-surface)", borderRadius: 12, padding: "11px 13px", display: "flex", alignItems: "flex-start", gap: 10 }}>
+                    <div onClick={() => markDone(r.id)} style={{ width: 18, height: 18, borderRadius: "50%", border: `1px solid var(--c-accent)`, flexShrink: 0, marginTop: 1, cursor: "pointer" }} />
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: 12.5, color: "var(--c-text1)", marginBottom: 4 }}>{r.content}</div>
+                      <div style={{ fontSize: 9.5, color: overdue ? "var(--c-warn)" : "var(--c-text3)" }}>
+                        {overdue ? `过期 · ${fmtDate(r.due_date)}` : r.due_date ? fmtDate(r.due_date) : "无截止日期"}
+                      </div>
+                    </div>
+                    <span onClick={() => deleteReminder(r.id)} style={{ fontSize: 11, color: "var(--c-text3)", cursor: "pointer", padding: "0 2px", flexShrink: 0 }}>删</span>
+                  </div>
+                );
+              })}
+            </div>
+          </>
+        )}
+
+        {done.length > 0 && (
+          <>
+            <div style={{ fontSize: 9, color: "var(--c-text3)", letterSpacing: "0.08em", marginBottom: 10, padding: "0 2px" }}>已完成</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
+              {done.map(r => (
+                <div key={r.id} style={{ background: "var(--c-surface)", borderRadius: 12, padding: "11px 13px", display: "flex", alignItems: "flex-start", gap: 10, opacity: 0.5 }}>
+                  <div style={{ width: 18, height: 18, borderRadius: "50%", background: "var(--c-good)", flexShrink: 0, marginTop: 1, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, color: "var(--c-bg)" }}>✓</div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 12.5, color: "var(--c-text1)", textDecoration: "line-through", marginBottom: 4 }}>{r.content}</div>
+                    {r.due_date && <div style={{ fontSize: 9.5, color: "var(--c-text3)" }}>{fmtDate(r.due_date)}</div>}
+                  </div>
+                  <span onClick={() => deleteReminder(r.id)} style={{ fontSize: 11, color: "var(--c-text3)", cursor: "pointer", padding: "0 2px", flexShrink: 0 }}>删</span>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+
 const WEATHER_OPTS = [
   { label: "晴天", emoji: "☀️" },
   { label: "多云", emoji: "⛅" },
@@ -764,45 +971,43 @@ function DiaryPage({ setPage, entries, setEntries }) {
   // ── 阅读页 ──
   const entryDate = new Date(entry.year, entry.month - 1, entry.day);
   const weekday = WEEKDAYS[entryDate.getDay()];
-  const weatherEmoji = WEATHER_OPTS.find(w => w.label === entry.weather)?.emoji || "";
-  const moodDot = MOOD_OPTS.find(m => m.label === entry.mood)?.dot || 'var(--c-text3)';
+  const vol = Math.ceil((entries.length - idx) / 10);
+  const册 = entries.length - idx;
 
   return (
     <div style={{ height: "100vh", display: "flex", flexDirection: "column", background: "var(--c-bg)", fontFamily: FONT }}>
-      <div style={{ padding: "14px 16px", borderBottom: `0.5px solid var(--c-border)`, display: "flex", alignItems: "center", gap: 12, flexShrink: 0 }}>
+      <div style={{ padding: "12px 16px", borderBottom: `0.5px solid var(--c-border)`, display: "flex", alignItems: "center", gap: 12, flexShrink: 0 }}>
         <BackChevron onClick={() => setPage("more")} />
-        <span style={{ flex: 1, textAlign: "center", fontSize: 11, color: "var(--c-text3)", letterSpacing: "0.06em" }}>第 {entries.length - idx} / {entries.length} 篇</span>
+        <span style={{ flex: 1, textAlign: "center", fontSize: 10.5, color: "var(--c-text3)", letterSpacing: "0.08em" }}>第 {vol} 卷 — 第 {册} 册</span>
         <span onClick={startWriting} style={{ fontSize: 11.5, color: "var(--c-accent)", cursor: "pointer" }}>＋</span>
       </div>
 
       <div style={{ flex: 1, overflowY: "auto" }}>
         {/* 日期区 */}
-        <div style={{ padding: "28px 24px 20px", textAlign: "center" }}>
-          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "center", gap: 6 }}>
-            <span style={{ fontFamily: "'Noto Serif SC', serif", fontSize: 42, color: "var(--c-text1)", fontWeight: 400, lineHeight: 1 }}>{entry.day}</span>
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 1 }}>
-              <span style={{ fontSize: 12, color: "var(--c-text2)" }}>{entry.month}月</span>
-              <span style={{ fontSize: 10.5, color: "var(--c-text3)" }}>周{weekday}</span>
+        <div style={{ padding: "32px 24px 22px", textAlign: "center" }}>
+          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "center", gap: 4 }}>
+            <span style={{ fontFamily: "'Noto Serif SC', serif", fontSize: 52, color: "var(--c-text1)", fontWeight: 400, lineHeight: 1 }}>{entry.day}</span>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", paddingTop: 6, gap: 3 }}>
+              <span style={{ fontFamily: "'Noto Serif SC', serif", fontSize: 14, color: "var(--c-text2)", fontWeight: 400 }}>{entry.month}月</span>
+              <span style={{ fontSize: 10, color: "var(--c-text3)" }}>{entry.year}</span>
             </div>
           </div>
-          <div style={{ fontSize: 10, color: "var(--c-text3)", marginTop: 4, letterSpacing: "0.05em" }}>{entry.year}</div>
+          <div style={{ fontSize: 10, color: "var(--c-muted)", marginTop: 8, letterSpacing: "0.1em" }}>周{weekday}</div>
         </div>
 
-        {/* 天气/心情/时间 */}
-        <div style={{ display: "flex", justifyContent: "center", gap: 24, padding: "12px 24px 18px", borderTop: `0.5px solid var(--c-border)`, borderBottom: `0.5px solid var(--c-border)`, margin: "0 20px" }}>
+        {/* 天气/心情/写于 — 纯文字统一格式 */}
+        <div style={{ display: "flex", justifyContent: "space-around", padding: "14px 16px", borderTop: `0.5px solid var(--c-border)`, borderBottom: `0.5px solid var(--c-border)`, margin: "0 18px" }}>
           <div style={{ textAlign: "center" }}>
-            <div style={{ fontSize: 9, color: "var(--c-text3)", letterSpacing: "0.06em", marginBottom: 5 }}>天气</div>
-            <div style={{ fontSize: 13 }}>{weatherEmoji}</div>
-            <div style={{ fontSize: 10, color: "var(--c-text2)", marginTop: 2 }}>{entry.weather}</div>
+            <div style={{ fontSize: 9, color: "var(--c-muted)", letterSpacing: "0.08em", marginBottom: 6 }}>天气</div>
+            <div style={{ fontSize: 11.5, color: "var(--c-text2)" }}>{entry.weather || "—"}</div>
           </div>
           <div style={{ textAlign: "center" }}>
-            <div style={{ fontSize: 9, color: "var(--c-text3)", letterSpacing: "0.06em", marginBottom: 5 }}>心情</div>
-            <div style={{ width: 10, height: 10, borderRadius: "50%", background: moodDot, margin: "0 auto 4px" }} />
-            <div style={{ fontSize: 10, color: "var(--c-text2)" }}>{entry.mood}</div>
+            <div style={{ fontSize: 9, color: "var(--c-muted)", letterSpacing: "0.08em", marginBottom: 6 }}>心情</div>
+            <div style={{ fontSize: 11.5, color: "var(--c-text2)" }}>{entry.mood || "—"}</div>
           </div>
           <div style={{ textAlign: "center" }}>
-            <div style={{ fontSize: 9, color: "var(--c-text3)", letterSpacing: "0.06em", marginBottom: 5 }}>写于</div>
-            <div style={{ fontSize: 12, color: "var(--c-text2)", marginTop: 3 }}>{entry.writtenAt}</div>
+            <div style={{ fontSize: 9, color: "var(--c-muted)", letterSpacing: "0.08em", marginBottom: 6 }}>写于</div>
+            <div style={{ fontSize: 11.5, color: "var(--c-text2)" }}>{entry.writtenAt}</div>
           </div>
         </div>
 
@@ -811,15 +1016,15 @@ function DiaryPage({ setPage, entries, setEntries }) {
           {entry.title && (
             <div style={{ fontFamily: "'Noto Serif SC', serif", fontSize: 15, color: "var(--c-text1)", marginBottom: 16, fontWeight: 400, lineHeight: 1.5 }}>{entry.title}</div>
           )}
-          <div style={{ fontFamily: "'Noto Serif SC', serif", fontSize: 13.5, color: "var(--c-text2)", lineHeight: 2.1, whiteSpace: "pre-wrap" }}>{entry.content}</div>
+          <div style={{ fontFamily: "'Noto Serif SC', serif", fontSize: 13.5, color: "var(--c-text2)", lineHeight: 2.2, whiteSpace: "pre-wrap" }}>{entry.content}</div>
         </div>
 
-        {/* 翻页 */}
-        <div style={{ display: "flex", justifyContent: "space-between", padding: "12px 24px 32px" }}>
+        {/* 翻页 — 裸文字 */}
+        <div style={{ display: "flex", justifyContent: "space-between", padding: "14px 24px 32px" }}>
           <span onClick={() => idx < entries.length - 1 && setIdx(idx + 1)}
-            style={{ fontSize: 11, color: idx < entries.length - 1 ? C.text2 : "var(--c-muted)", border: `0.5px solid ${idx < entries.length - 1 ? C.border : "var(--c-muted)"}`, borderRadius: 16, padding: "5px 16px", cursor: idx < entries.length - 1 ? "pointer" : "default" }}>‹ 上一篇</span>
+            style={{ fontSize: 11, color: idx < entries.length - 1 ? "var(--c-text2)" : "var(--c-muted)", cursor: idx < entries.length - 1 ? "pointer" : "default" }}>上一篇</span>
           <span onClick={() => idx > 0 && setIdx(idx - 1)}
-            style={{ fontSize: 11, color: idx > 0 ? C.text2 : "var(--c-muted)", border: `0.5px solid ${idx > 0 ? C.border : "var(--c-muted)"}`, borderRadius: 16, padding: "5px 16px", cursor: idx > 0 ? "pointer" : "default" }}>下一篇 ›</span>
+            style={{ fontSize: 11, color: idx > 0 ? "var(--c-text2)" : "var(--c-muted)", cursor: idx > 0 ? "pointer" : "default" }}>下一篇</span>
         </div>
       </div>
     </div>
@@ -827,6 +1032,16 @@ function DiaryPage({ setPage, entries, setEntries }) {
 }
 
 // ── CyclePage（周期追踪 + 用药打卡，先用本地状态） ─────────────────
+const PHASE_COLORS = {
+  经期:  { bg: "#EB9FAA", text: "#fff" },
+  卵泡期: { bg: "#C1E6E4", text: "#3d4451" },
+  排卵期: { bg: "#A49E99", text: "#fff" },
+  黄体期: { bg: "#EBF6F7", text: "#3d4451" },
+};
+const PERIOD_COLOR = "#EB9FAA";
+const PREDICT_COLOR = "#F7D2D5";
+const WEEKDAY_LABELS = ["日","一","二","三","四","五","六"];
+
 function CyclePage({ setPage, cycleData, setCycleData }) {
   const { lastPeriodStart, avgLength, medication, medLog } = cycleData;
   const [editing, setEditing] = useState(!lastPeriodStart);
@@ -834,20 +1049,60 @@ function CyclePage({ setPage, cycleData, setCycleData }) {
   const [lenInput, setLenInput] = useState(avgLength || 28);
   const [medInput, setMedInput] = useState(medication || "");
   const [saving, setSaving] = useState(false);
+  const [calYear, setCalYear] = useState(new Date().getFullYear());
+  const [calMonth, setCalMonth] = useState(new Date().getMonth());
 
   const today = new Date();
+  const cycleLen = avgLength || 28;
+
   const cycleDay = lastPeriodStart
-    ? Math.floor((today - new Date(lastPeriodStart)) / 86400000) % (avgLength || 28) + 1
-    : null;
-  const nextPeriodDays = lastPeriodStart
-    ? (avgLength || 28) - (cycleDay - 1)
+    ? Math.floor((today - new Date(lastPeriodStart)) / 86400000) % cycleLen + 1
     : null;
 
-  const phase = cycleDay == null ? "未设置"
+  const phase = cycleDay == null ? null
     : cycleDay <= 5 ? "经期"
     : cycleDay <= 13 ? "卵泡期"
     : cycleDay <= 16 ? "排卵期"
     : "黄体期";
+
+  const totalDays = lastPeriodStart ? Math.floor((today - new Date(lastPeriodStart)) / 86400000) : null;
+  const currentCycleStart = lastPeriodStart
+    ? new Date(new Date(lastPeriodStart).getTime() + Math.floor(totalDays / cycleLen) * cycleLen * 86400000)
+    : null;
+  const nextPeriodDate = currentCycleStart ? new Date(currentCycleStart.getTime() + cycleLen * 86400000) : null;
+  const nextPeriodDays = nextPeriodDate ? Math.ceil((nextPeriodDate - today) / 86400000) : null;
+  const nextPeriodLabel = nextPeriodDate
+    ? `${nextPeriodDate.getMonth() + 1}月${nextPeriodDate.getDate()}日`
+    : null;
+
+  const getDayType = (year, month, day) => {
+    if (!lastPeriodStart) return null;
+    const date = new Date(year, month, day);
+    const start = new Date(lastPeriodStart);
+    const diffDays = Math.floor((date - start) / 86400000);
+    if (diffDays < 0) return null;
+    const dayInCycle = diffDays % cycleLen;
+    if (dayInCycle < 5) return date <= today ? "period" : "predict";
+    return null;
+  };
+
+  const isLogged = (year, month, day) =>
+    (medLog || []).includes(new Date(year, month, day).toDateString());
+
+  const isToday = (year, month, day) =>
+    year === today.getFullYear() && month === today.getMonth() && day === today.getDate();
+
+  const renderCalendar = () => {
+    const firstDay = new Date(calYear, calMonth, 1).getDay();
+    const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+    const cells = [];
+    for (let i = 0; i < firstDay; i++) cells.push(null);
+    for (let d = 1; d <= daysInMonth; d++) cells.push(d);
+    return cells;
+  };
+
+  const prevMonth = () => { if (calMonth === 0) { setCalYear(y => y - 1); setCalMonth(11); } else setCalMonth(m => m - 1); };
+  const nextMonth = () => { if (calMonth === 11) { setCalYear(y => y + 1); setCalMonth(0); } else setCalMonth(m => m + 1); };
 
   const persist = async (patch) => {
     const next = { ...cycleData, ...patch };
@@ -855,14 +1110,9 @@ function CyclePage({ setPage, cycleData, setCycleData }) {
     try {
       await fetch(`${API_BASE}/cycle`, {
         method: "PUT", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          last_period_start: next.lastPeriodStart, avg_length: next.avgLength,
-          medication: next.medication, med_log: next.medLog || [],
-        }),
+        body: JSON.stringify({ last_period_start: next.lastPeriodStart, avg_length: next.avgLength, medication: next.medication, med_log: next.medLog || [] }),
       });
-    } catch {
-      // 存失败就先留在本地，下次开页面会重新拉一次后端数据
-    }
+    } catch {}
   };
 
   const saveSetup = async () => {
@@ -874,12 +1124,12 @@ function CyclePage({ setPage, cycleData, setCycleData }) {
   };
 
   const checkInToday = () => {
-    const todayStr = new Date().toDateString();
+    const todayStr = today.toDateString();
     if ((medLog || []).includes(todayStr)) return;
     persist({ medLog: [...(medLog || []), todayStr] });
   };
 
-  const alreadyCheckedIn = (medLog || []).includes(new Date().toDateString());
+  const alreadyCheckedIn = (medLog || []).includes(today.toDateString());
 
   if (editing) {
     return (
@@ -900,7 +1150,7 @@ function CyclePage({ setPage, cycleData, setCycleData }) {
           <div style={{ fontSize: 12, color: "var(--c-text2)", marginTop: 10 }}>在吃什么药（没有可以不填）</div>
           <input type="text" value={medInput} onChange={e => setMedInput(e.target.value)} placeholder="药名"
             style={{ border: `0.5px solid var(--c-border)`, borderRadius: 10, padding: "9px 12px", fontSize: 16, fontFamily: "inherit", outline: "none", background: "var(--c-bg)", color: "var(--c-text1)" }} />
-          <span onClick={saveSetup} style={{ marginTop: 10, alignSelf: "flex-start", fontSize: 12.5, color: "var(--c-bg)", background: dateInput ? C.accent : "var(--c-muted)", borderRadius: 10, padding: "9px 22px", cursor: dateInput ? "pointer" : "default" }}>
+          <span onClick={saveSetup} style={{ marginTop: 10, alignSelf: "flex-start", fontSize: 12.5, color: "var(--c-bg)", background: dateInput ? "var(--c-accent)" : "var(--c-muted)", borderRadius: 10, padding: "9px 22px", cursor: dateInput ? "pointer" : "default" }}>
             {saving ? "保存中…" : "保存"}
           </span>
         </div>
@@ -908,43 +1158,119 @@ function CyclePage({ setPage, cycleData, setCycleData }) {
     );
   }
 
+  const cells = renderCalendar();
+
   return (
-    <div style={{ height: "100vh", display: "flex", flexDirection: "column", background: "var(--c-bg)", fontFamily: FONT, overflowY: "auto" }}>
-      <div style={{ padding: "14px 16px", borderBottom: `0.5px solid var(--c-border)`, display: "flex", alignItems: "center", gap: 12, flexShrink: 0 }}>
-        <BackChevron onClick={() => setPage("more")} />
-        <span style={{ flex: 1, textAlign: "center", fontSize: 11.5, color: "var(--c-text2)" }}>本周期第{cycleDay}天</span>
+    <div style={{ height: "100vh", display: "flex", flexDirection: "column", background: "var(--c-bg)", fontFamily: FONT }}>
+
+      {/* 顶部 */}
+      <div style={{ padding: "12px 16px", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
+        <span onClick={() => setPage("more")} style={{ fontSize: 18, color: "var(--c-text3)", cursor: "pointer", lineHeight: 1 }}>×</span>
+        <div style={{ textAlign: "center" }}>
+          <div style={{ fontSize: 13, color: "var(--c-text1)" }}>
+            本周期第 <span style={{ fontFamily: "'Noto Serif SC',serif", fontSize: 20 }}>{cycleDay}</span> 天
+          </div>
+          <div style={{ fontSize: 9.5, color: "var(--c-text3)", marginTop: 1 }}>
+            {today.getFullYear()}年{today.getMonth()+1}月{today.getDate()}日
+          </div>
+        </div>
         <IconSettings size={15} color="var(--c-text3)" onClick={() => { setDateInput(lastPeriodStart); setLenInput(avgLength || 28); setMedInput(medication || ""); setEditing(true); }} />
       </div>
 
-      <div style={{ margin: "16px 18px 0", background: "var(--c-surface)", borderRadius: 14, padding: "14px 16px" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <div style={{ flex: 1, overflowY: "auto" }}>
+
+        {/* 信息卡 */}
+        <div style={{ margin: "0 14px", background: "var(--c-surface)", borderRadius: 14, padding: "13px 14px", display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
           <div>
-            <div style={{ fontSize: 10, color: "var(--c-text3)" }}>你现在处于</div>
-            <div style={{ fontSize: 13.5, color: "var(--c-text1)", marginTop: 4 }}>● {phase}</div>
+            <div style={{ fontSize: 9, color: "var(--c-text3)", marginBottom: 5 }}>你现在处于</div>
+            <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+              <span style={{ width: 7, height: 7, borderRadius: "50%", background: phase ? PHASE_COLORS[phase].bg : "var(--c-text3)", display: "inline-block" }} />
+              <span style={{ fontSize: 13, color: "var(--c-text1)", fontWeight: 500 }}>{phase || "未设置"}</span>
+            </div>
+            <div style={{ fontSize: 9, color: "var(--c-text3)", marginTop: 3 }}>根据本地填写计算</div>
           </div>
-          <div style={{ textAlign: "right" }}>
-            <div style={{ fontSize: 10, color: "var(--c-text3)" }}>下次月经</div>
-            <div style={{ fontSize: 13, color: "var(--c-text1)", marginTop: 4 }}>约{nextPeriodDays}天后</div>
+          {nextPeriodDate && (
+            <div style={{ textAlign: "right" }}>
+              <div style={{ fontSize: 9, color: "var(--c-text3)", marginBottom: 3 }}>下次月经</div>
+              <div style={{ fontFamily: "'Noto Serif SC',serif", fontSize: 17, color: "var(--c-text1)", lineHeight: 1 }}>{nextPeriodLabel}</div>
+              <div style={{ fontSize: 9.5, color: "var(--c-text3)", marginTop: 2 }}>约 {nextPeriodDays} 天后</div>
+            </div>
+          )}
+        </div>
+
+        {/* 阶段标签 */}
+        <div style={{ display: "flex", gap: 6, padding: "12px 14px 4px", flexWrap: "wrap" }}>
+          {["经期","卵泡期","排卵期","黄体期"].map(p => {
+            const isActive = phase === p;
+            const pc = PHASE_COLORS[p];
+            return (
+              <span key={p} style={{ padding: "5px 11px", borderRadius: 20, fontSize: 10.5, background: isActive ? pc.bg : "transparent", color: isActive ? pc.text : "var(--c-text3)", border: `0.5px solid ${isActive ? pc.bg : "var(--c-border)"}` }}>{p}</span>
+            );
+          })}
+        </div>
+
+        {/* 月历 */}
+        <div style={{ borderTop: `0.5px solid var(--c-border)`, padding: "14px 10px 0", margin: "12px 0 0" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10, padding: "0 4px" }}>
+            <span onClick={prevMonth} style={{ fontSize: 13, color: "var(--c-text3)", cursor: "pointer", padding: "0 6px" }}>‹</span>
+            <span style={{ fontSize: 12, color: "var(--c-text1)" }}>{calYear}年{calMonth+1}月</span>
+            <span onClick={nextMonth} style={{ fontSize: 13, color: "var(--c-text3)", cursor: "pointer", padding: "0 6px" }}>›</span>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)", textAlign: "center", marginBottom: 6 }}>
+            {WEEKDAY_LABELS.map(w => <div key={w} style={{ fontSize: 9.5, color: "var(--c-text3)", padding: "2px 0" }}>{w}</div>)}
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)", textAlign: "center", gap: "3px 0" }}>
+            {cells.map((d, i) => {
+              if (!d) return <div key={`e${i}`} />;
+              const dayType = getDayType(calYear, calMonth, d);
+              const logged = isLogged(calYear, calMonth, d);
+              const tod = isToday(calYear, calMonth, d);
+              let bg = "transparent", color = "var(--c-text2)", border = "none";
+              if (dayType === "period") { bg = PERIOD_COLOR; color = "#fff"; }
+              else if (dayType === "predict") { bg = PREDICT_COLOR; color = "var(--c-text2)"; }
+              if (tod) { border = `1px solid var(--c-accent)`; color = dayType ? color : "var(--c-text1)"; }
+              return (
+                <div key={d} style={{ position: "relative", margin: "0 auto", width: 34, height: 34, borderRadius: "50%", background: bg, color, border, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11.5 }}>
+                  {d}
+                  {logged && !dayType && <span style={{ position: "absolute", bottom: 3, left: "50%", transform: "translateX(-50%)", width: 3, height: 3, borderRadius: "50%", background: PERIOD_COLOR }} />}
+                </div>
+              );
+            })}
           </div>
         </div>
-      </div>
 
-      <div style={{ display: "flex", gap: 6, margin: "12px 18px 0" }}>
-        {["经期", "卵泡期", "排卵期", "黄体期"].map(p => (
-          <span key={p} style={{ flex: 1, textAlign: "center", fontSize: 10, color: phase === p ? C.bg : "var(--c-text2)", background: phase === p ? "#8b9dc3" : "transparent", border: phase === p ? "none" : `0.5px solid var(--c-border)`, borderRadius: 8, padding: "5px 0" }}>{p}</span>
-        ))}
-      </div>
-
-      <div style={{ margin: "18px 18px 22px", borderTop: `0.5px solid var(--c-border)`, paddingTop: 14 }}>
-        <div style={{ fontSize: 10.5, color: "var(--c-text2)", marginBottom: 10 }}>用药记录</div>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "var(--c-surface)", borderRadius: 10, padding: "9px 12px" }}>
-          <div>
-            <div style={{ fontSize: 12, color: "var(--c-text1)" }}>{medication || "还没填药名"}</div>
-            <div style={{ fontSize: 9.5, color: "var(--c-text3)", marginTop: 2 }}>{alreadyCheckedIn ? "今天已打卡" : "今天还没打卡"}</div>
-          </div>
-          <span onClick={checkInToday}
-            style={{ width: 20, height: 20, borderRadius: "50%", background: alreadyCheckedIn ? C.good : "var(--c-surface)", border: alreadyCheckedIn ? "none" : `0.5px solid var(--c-border)`, color: "var(--c-bg)", fontSize: 11, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>{alreadyCheckedIn ? "✓" : ""}</span>
+        {/* 图例 */}
+        <div style={{ display: "flex", gap: 12, padding: "10px 14px 12px", flexWrap: "wrap" }}>
+          {[
+            { dot: PERIOD_COLOR, label: "实际经期" },
+            { dot: PREDICT_COLOR, label: "预测经期", border: "none" },
+            { dot: "transparent", label: "今天", border: `1px solid var(--c-accent)` },
+            { dot: PERIOD_COLOR, label: "已有记录", small: true },
+          ].map(({ dot, label, border, small }) => (
+            <div key={label} style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 9.5, color: "var(--c-text3)" }}>
+              <span style={{ width: small ? 4 : 8, height: small ? 4 : 8, borderRadius: "50%", background: dot, border: border || "none", display: "inline-block", flexShrink: 0 }} />
+              {label}
+            </div>
+          ))}
         </div>
+
+        {/* 用药打卡 */}
+        {medication && (
+          <div style={{ margin: "0 14px 20px", borderTop: `0.5px solid var(--c-border)`, paddingTop: 12 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "var(--c-surface)", borderRadius: 10, padding: "9px 12px" }}>
+              <div>
+                <div style={{ fontSize: 12, color: "var(--c-text1)" }}>{medication}</div>
+                <div style={{ fontSize: 9.5, color: "var(--c-text3)", marginTop: 2 }}>{alreadyCheckedIn ? "今天已打卡" : "今天还没打卡"}</div>
+              </div>
+              <span onClick={checkInToday} style={{ width: 22, height: 22, borderRadius: "50%", background: alreadyCheckedIn ? "var(--c-good)" : "transparent", border: alreadyCheckedIn ? "none" : `0.5px solid var(--c-border)`, color: "var(--c-bg)", fontSize: 11, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
+                {alreadyCheckedIn ? "✓" : ""}
+              </span>
+            </div>
+          </div>
+        )}
+
       </div>
     </div>
   );
@@ -1422,6 +1748,16 @@ export default function App() {
       .catch(() => {});
   }, []);
 
+  // 提醒
+  const [reminders, setReminders] = useState([]);
+
+  useEffect(() => {
+    fetch(`${API_BASE}/reminders`)
+      .then(r => r.json())
+      .then(data => { if (Array.isArray(data)) setReminders(data); })
+      .catch(() => {});
+  }, []);
+
   useEffect(() => {
     fetch(`${API_BASE}/settings`).then(r => r.json()).then(data => {
       if (data.avatar_url) setAvatarUrl(data.avatar_url);
@@ -1449,9 +1785,10 @@ export default function App() {
   if (page === "landing") return <LandingPage setPage={setPage} mailbox={mailbox} />;
   if (page === "chat") return <ChatPage setPage={setPage} avatarUrl={avatarUrl} />;
   if (page === "search") return <SearchPage setPage={setPage} />;
-  if (page === "more") return <MorePage setPage={setPage} mailbox={mailbox} diaryCount={diaryEntries.length} cycleDay={cycleDay} />;
+  if (page === "more") return <MorePage setPage={setPage} mailbox={mailbox} diaryCount={diaryEntries.length} cycleDay={cycleDay} cycleAvgLength={cycleData.avgLength} reminders={reminders} />;
   if (page === "diary") return <DiaryPage setPage={setPage} entries={diaryEntries} setEntries={setDiaryEntries} />;
   if (page === "cycle") return <CyclePage setPage={setPage} cycleData={cycleData} setCycleData={setCycleData} />;
+  if (page === "reminder") return <ReminderPage setPage={setPage} reminders={reminders} setReminders={setReminders} />;
   if (page === "mailboxFull") return <MailboxPage setPage={setPage} mailbox={mailbox} setMailbox={setMailbox} />;
   if (page === "status") return <StatusPage setPage={setPage} driveState={driveState} driveLoading={driveLoading} />;
   if (page === "settingsHub") return <SettingsHubPage setPage={setPage} theme={theme} setTheme={setTheme} />;
