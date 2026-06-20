@@ -272,7 +272,7 @@ function LandingPage({ setPage, mailbox, avatarUrl, userAvatarUrl, pendingRemind
           <div style={{ width: 72, height: 72, borderRadius: "50%", background: "rgba(180,200,220,0.6)", border: "3px solid rgba(255,255,255,0.8)", position: "relative", zIndex: 2, marginBottom: -36, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, color: "#6a8aaa" }}>Echo</div>
         )}
         <div style={{ background: "rgba(255,255,255,0.55)", backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)", borderRadius: 18, padding: "44px 18px 16px", width: "100%", textAlign: "center", border: "0.5px solid rgba(255,255,255,0.8)" }}>
-          <div style={{ fontFamily: "'Playfair Display','Noto Serif SC',serif", fontSize: 17, color: "#3a4a5a", letterSpacing: ".06em", marginBottom: 5 }}>Echo</div>
+          <div style={{ fontFamily: "'Playfair Display','Noto Serif SC',serif", fontSize: 17, color: "#3a4a5a", letterSpacing: ".06em", marginBottom: 5 }}>Lin</div>
           <div style={{ fontSize: 10, color: "#7a9ab8", letterSpacing: ".08em", marginBottom: 10 }}>own the moment</div>
           <div style={{ fontSize: 12, color: "#5a7090", lineHeight: 1.7 }}>{landingQuote || "不是在等你回来，只是刚好一直在。"}</div>
         </div>
@@ -530,7 +530,7 @@ function ChatPage({ setPage, avatarUrl, userAvatarUrl }) {
       </div>
 
       {/* 顶部导航：双头像+名字在左，功能图标在右 */}
-      <div style={{ padding: "10px 16px", borderBottom: `0.5px solid var(--c-border)`, display: "flex", alignItems: "center", background: "var(--c-bg)", gap: 10, flexShrink: 0 }}>
+      <div style={{ padding: "10px 16px", borderBottom: `0.5px solid rgba(255,255,255,0.3)`, display: "flex", alignItems: "center", background: "rgba(240,244,250,0.75)", backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)", gap: 10, flexShrink: 0 }}>
         <div onClick={() => setSidebarOpen(true)} style={{ cursor: "pointer", flexShrink: 0, display: "flex", alignItems: "center" }}>
           {/* 用户头像 */}
           {userAvatarUrl ? (
@@ -576,7 +576,7 @@ function ChatPage({ setPage, avatarUrl, userAvatarUrl }) {
       </div>
 
       {/* 输入框 */}
-      <div style={{ borderTop: `0.5px solid var(--c-border)`, background: "var(--c-bg)", flexShrink: 0 }}>
+      <div style={{ borderTop: `0.5px solid rgba(255,255,255,0.3)`, background: "rgba(240,244,250,0.75)", backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)", flexShrink: 0 }}>
         {(attachment || uploading) && (
           <div style={{ padding: "8px 14px 0", display: "flex", alignItems: "center", gap: 8 }}>
             {uploading ? (
