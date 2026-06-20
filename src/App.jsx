@@ -545,8 +545,8 @@ function ChatPage({ setPage, avatarUrl, userAvatarUrl }) {
       </div>
 
       {/* 消息区域 */}
-      <div style={{ flex: 1, overflowY: "auto", padding: "20px 20px 10px", display: "flex", flexDirection: "column", gap: 16, background: "var(--c-surface)" }}>
-        <div style={{ alignSelf: "center", fontSize: 10.5, color: "var(--c-text2)", background: "var(--c-bg)", border: `0.5px solid var(--c-border)`, borderRadius: 20, padding: "3px 10px" }}>已加载记忆</div>
+      <div style={{ flex: 1, overflowY: "auto", padding: "20px 20px 10px", display: "flex", flexDirection: "column", gap: 16, background: "radial-gradient(ellipse at 50% 40%, #c8cdd0 0%, #d8dde0 25%, #e8ecee 55%, #f2f4f5 100%)" }}>
+        <div style={{ alignSelf: "center", fontSize: 10, color: "var(--c-text3)", letterSpacing: "0.06em" }}>welcome</div>
         {messages.map(msg => <MessageItem key={msg.id} msg={msg} />)}
         {isTyping && (
           <div style={{ alignSelf: "flex-start" }}>
