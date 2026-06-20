@@ -13,7 +13,8 @@ const THEMES = {
     text1: "#3d4451",
     text2: "#686E7A",
     text3: "#9aa3ad",
-    bubble: "#5b6472",
+    bubble: "linear-gradient(145deg, #d5d8de, #ebebeb)",
+    bubbleText: "#2a2a2a",
     good: "#7faa9e",
     warn: "#a08fb0",
     aiBubble: "#FAFCFF",
@@ -28,7 +29,8 @@ const THEMES = {
     text1: "#f0f0f0",
     text2: "#aaaaaa",
     text3: "#555555",
-    bubble: "#F4B6BE",
+    bubble: "linear-gradient(145deg, #EE9CA7, #FBD0D5)",
+    bubbleText: "#3a1a1e",
     good: "#7faa9e",
     warn: "#c49ab0",
     aiBubble: "#FFDDE1",
@@ -204,7 +206,7 @@ function MessageItem({ msg }) {
         )}
         {msg.content && (
           <div style={{
-            background: "var(--c-bubble)", color: "var(--c-bg)", borderRadius: 14, borderBottomRightRadius: 4,
+            background: "var(--c-bubble)", color: "var(--c-bubble-text)", borderRadius: 14, borderBottomRightRadius: 4,
             padding: "9px 13px", fontSize: 13.5, lineHeight: 1.6, textAlign: "left",
             whiteSpace: "pre-wrap", wordBreak: "break-word", display: "inline-block"
           }}>
