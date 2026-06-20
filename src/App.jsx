@@ -1560,29 +1560,29 @@ function PersonaPage({ setPage, avatarUrl: initAvatarUrl, setAvatarUrl: setGloba
       </div>
       <div style={{ flex: 1, overflowY: "auto", padding: 18 }}>
         <div style={{ fontSize: 10, color: "var(--c-text3)", marginBottom: 10, letterSpacing: "0.08em" }}>头像</div>
-        <div style={{ display: "flex", gap: 14, marginBottom: 22 }}>
-          <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 9.5, color: "var(--c-text3)", marginBottom: 6 }}>Echo</div>
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 22 }}>
+          <div>
+            <div style={{ fontSize: 9.5, color: "var(--c-text3)", marginBottom: 6 }}>Echo 的头像</div>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
               {avatarInput ? (
-                <img src={avatarInput} style={{ width: 34, height: 34, borderRadius: "50%", objectFit: "cover", flexShrink: 0 }} onError={e => e.target.style.display = "none"} />
+                <img src={avatarInput} style={{ width: 36, height: 36, borderRadius: "50%", objectFit: "cover", flexShrink: 0 }} onError={e => e.target.style.display = "none"} />
               ) : (
-                <div style={{ width: 34, height: 34, borderRadius: "50%", background: "var(--c-accent)", flexShrink: 0 }} />
+                <div style={{ width: 36, height: 36, borderRadius: "50%", background: "var(--c-accent)", flexShrink: 0 }} />
               )}
               <input value={avatarInput} onChange={e => setAvatarInput(e.target.value)} placeholder="粘贴图片链接…"
-                style={{ flex: 1, border: `0.5px solid var(--c-border)`, borderRadius: 8, padding: "6px 10px", fontSize: 16, fontFamily: "inherit", outline: "none", background: "var(--c-bg)", color: "var(--c-text1)" }} />
+                style={{ flex: 1, border: `0.5px solid var(--c-border)`, borderRadius: 8, padding: "8px 10px", fontSize: 16, fontFamily: "inherit", outline: "none", background: "var(--c-bg)", color: "var(--c-text1)" }} />
             </div>
           </div>
-          <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 9.5, color: "var(--c-text3)", marginBottom: 6 }}>我的</div>
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div>
+            <div style={{ fontSize: 9.5, color: "var(--c-text3)", marginBottom: 6 }}>我的头像</div>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
               {userAvatarInput ? (
-                <img src={userAvatarInput} style={{ width: 34, height: 34, borderRadius: "50%", objectFit: "cover", flexShrink: 0 }} onError={e => e.target.style.display = "none"} />
+                <img src={userAvatarInput} style={{ width: 36, height: 36, borderRadius: "50%", objectFit: "cover", flexShrink: 0 }} onError={e => e.target.style.display = "none"} />
               ) : (
-                <div style={{ width: 34, height: 34, borderRadius: "50%", background: "var(--c-muted)", flexShrink: 0 }} />
+                <div style={{ width: 36, height: 36, borderRadius: "50%", background: "var(--c-muted)", flexShrink: 0 }} />
               )}
               <input value={userAvatarInput} onChange={e => setUserAvatarInput(e.target.value)} placeholder="粘贴图片链接…"
-                style={{ flex: 1, border: `0.5px solid var(--c-border)`, borderRadius: 8, padding: "6px 10px", fontSize: 16, fontFamily: "inherit", outline: "none", background: "var(--c-bg)", color: "var(--c-text1)" }} />
+                style={{ flex: 1, border: `0.5px solid var(--c-border)`, borderRadius: 8, padding: "8px 10px", fontSize: 16, fontFamily: "inherit", outline: "none", background: "var(--c-bg)", color: "var(--c-text1)" }} />
             </div>
           </div>
         </div>
