@@ -552,7 +552,7 @@ function ChatPage({ setPage, avatarUrl, userAvatarUrl }) {
           )}
         </div>
         <div style={{ flex: 1 }}>
-          <div style={{ fontFamily: "'DM Serif Display', 'Noto Serif SC', serif", fontSize: 14, color: "var(--c-text1)", lineHeight: 1.2, letterSpacing: "0.02em" }}>Echo</div>
+          <div style={{ fontFamily: "'DM Serif Display', 'Noto Serif SC', serif", fontSize: 14, color: "var(--c-text1)", lineHeight: 1.2, letterSpacing: "0.02em", fontStyle: "italic" }}>Echo</div>
           <div style={{ fontSize: 10, color: "var(--c-text3)", marginTop: 1 }}>Own the moment</div>
         </div>
         <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
