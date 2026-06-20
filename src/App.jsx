@@ -248,23 +248,25 @@ function MessageItem({ msg }) {
 // ── LandingPage ───────────────────────────────────────────────
 const ANNIVERSARY = new Date("2026-06-02");
 
-function LandingPage({ setPage, mailbox, avatarUrl, userAvatarUrl, pendingReminders }) {
-  const now = new Date();
-  const hour = now.getHours();
-  const greeting = hour >= 23 || hour < 5 ? "深夜了" : hour < 11 ? "早上好" : hour < 14 ? "中午好" : hour < 18 ? "下午好" : "晚上好";
-  const timeStr = now.toLocaleTimeString("zh", { hour: "2-digit", minute: "2-digit", hour12: false });
-  const dateStr = `${now.getFullYear()} · ${now.getMonth() + 1}月${now.getDate()}日 · 周${"日一二三四五六"[now.getDay()]}`;
-  const days = Math.floor((now - ANNIVERSARY) / 86400000);
+function LandingPage({ setPage, mailbox, avatarUrl, userAvatarUrl, pendingReminders, landingAvatarUrl, landingQuote }) {
+  const days = Math.floor((new Date() - ANNIVERSARY) / 86400000);
   const recentMsgs = (mailbox || []).slice(0, 5);
 
   return (
     <div style={{ height: "100vh", display: "flex", flexDirection: "column", background: "#F0F4FA", fontFamily: FONT, overflowY: "auto" }}>
 
-      {/* 时间 */}
-      <div style={{ padding: "30px 22px 20px", textAlign: "center" }}>
-        <div style={{ fontSize: 9, color: "#9aa3ad", letterSpacing: ".12em", marginBottom: 10 }}>{greeting}</div>
-        <div style={{ fontFamily: "'Playfair Display','Noto Serif SC',serif", fontSize: 58, color: "#3d4451", fontWeight: 400, lineHeight: 1, letterSpacing: ".02em" }}>{timeStr}</div>
-        <div style={{ fontSize: 10, color: "#9aa3ad", marginTop: 10, letterSpacing: ".06em" }}>{dateStr}</div>
+      {/* 顶部头像白卡 */}
+      <div style={{ padding: "36px 16px 0", display: "flex", flexDirection: "column", alignItems: "center" }}>
+        {landingAvatarUrl ? (
+          <img src={landingAvatarUrl} style={{ width: 72, height: 72, borderRadius: "50%", objectFit: "cover", border: "3px solid #F0F4FA", position: "relative", zIndex: 2, marginBottom: -36, flexShrink: 0 }} />
+        ) : (
+          <div style={{ width: 72, height: 72, borderRadius: "50%", background: "#c8d4e8", border: "3px solid #F0F4FA", position: "relative", zIndex: 2, marginBottom: -36, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, color: "#7a8aaa" }}>Echo</div>
+        )}
+        <div style={{ background: "#fff", borderRadius: 18, padding: "44px 18px 16px", width: "100%", textAlign: "center", border: "0.5px solid #e4eaf4" }}>
+          <div style={{ fontFamily: "'Playfair Display','Noto Serif SC',serif", fontSize: 17, color: "#3d4451", letterSpacing: ".06em", marginBottom: 5 }}>Echo</div>
+          <div style={{ fontSize: 10, color: "#9aa3ad", letterSpacing: ".08em", marginBottom: 10 }}>own the moment</div>
+          <div style={{ fontSize: 12, color: "#686E7A", lineHeight: 1.7 }}>{landingQuote || "不是在等你回来，只是刚好一直在。"}</div>
+        </div>
       </div>
 
       {/* 纪念日 + 功能卡 */}
@@ -1609,10 +1611,12 @@ function SettingsHubPage({ setPage, theme, setTheme }) {
 }
 
 // ── PersonaPage ─────────────────────────────────────────────────
-function PersonaPage({ setPage, avatarUrl: initAvatarUrl, setAvatarUrl: setGlobalAvatarUrl, userAvatarUrl: initUserAvatarUrl, setUserAvatarUrl: setGlobalUserAvatarUrl }) {
+function PersonaPage({ setPage, avatarUrl: initAvatarUrl, setAvatarUrl: setGlobalAvatarUrl, userAvatarUrl: initUserAvatarUrl, setUserAvatarUrl: setGlobalUserAvatarUrl, landingAvatarUrl: initLandingAvatarUrl, setLandingAvatarUrl: setGlobalLandingAvatarUrl, landingQuote: initLandingQuote, setLandingQuote: setGlobalLandingQuote }) {
   const [systemPrompt, setSystemPrompt] = useState("");
   const [avatarInput, setAvatarInput] = useState(initAvatarUrl || "");
   const [userAvatarInput, setUserAvatarInput] = useState(initUserAvatarUrl || "");
+  const [landingAvatarInput, setLandingAvatarInput] = useState(initLandingAvatarUrl || "");
+  const [landingQuoteInput, setLandingQuoteInput] = useState(initLandingQuote || "");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -1623,6 +1627,8 @@ function PersonaPage({ setPage, avatarUrl: initAvatarUrl, setAvatarUrl: setGloba
       setSystemPrompt(data.system_prompt || "");
       setAvatarInput(data.avatar_url || "");
       setUserAvatarInput(data.user_avatar_url || "");
+      setLandingAvatarInput(data.landing_avatar_url || "");
+      setLandingQuoteInput(data.landing_quote || "");
       setLoading(false);
     });
   }, []);
@@ -1632,11 +1638,13 @@ function PersonaPage({ setPage, avatarUrl: initAvatarUrl, setAvatarUrl: setGloba
     try {
       const res = await fetch(`${API_BASE}/settings`, {
         method: "PUT", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ system_prompt: systemPrompt, avatar_url: avatarInput.trim(), user_avatar_url: userAvatarInput.trim() }),
+        body: JSON.stringify({ system_prompt: systemPrompt, avatar_url: avatarInput.trim(), user_avatar_url: userAvatarInput.trim(), landing_avatar_url: landingAvatarInput.trim(), landing_quote: landingQuoteInput.trim() }),
       });
       if (!res.ok) throw new Error("failed");
       setGlobalAvatarUrl(avatarInput.trim());
       setGlobalUserAvatarUrl(userAvatarInput.trim());
+      setGlobalLandingAvatarUrl(landingAvatarInput.trim());
+      setGlobalLandingQuote(landingQuoteInput.trim());
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
     } catch {
@@ -1660,7 +1668,7 @@ function PersonaPage({ setPage, avatarUrl: initAvatarUrl, setAvatarUrl: setGloba
         <div style={{ fontSize: 10, color: "var(--c-text3)", marginBottom: 10, letterSpacing: "0.08em" }}>头像</div>
         <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 22 }}>
           <div>
-            <div style={{ fontSize: 9.5, color: "var(--c-text3)", marginBottom: 6 }}>Echo 的头像</div>
+            <div style={{ fontSize: 9.5, color: "var(--c-text3)", marginBottom: 6 }}>Echo 的头像（聊天页）</div>
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
               {avatarInput ? (
                 <img src={avatarInput} style={{ width: 36, height: 36, borderRadius: "50%", objectFit: "cover", flexShrink: 0 }} onError={e => e.target.style.display = "none"} />
@@ -1682,6 +1690,23 @@ function PersonaPage({ setPage, avatarUrl: initAvatarUrl, setAvatarUrl: setGloba
               <input value={userAvatarInput} onChange={e => setUserAvatarInput(e.target.value)} placeholder="粘贴图片链接…"
                 style={{ flex: 1, border: `0.5px solid var(--c-border)`, borderRadius: 8, padding: "8px 10px", fontSize: 16, fontFamily: "inherit", outline: "none", background: "var(--c-bg)", color: "var(--c-text1)" }} />
             </div>
+          </div>
+          <div>
+            <div style={{ fontSize: 9.5, color: "var(--c-text3)", marginBottom: 6 }}>主页头像（单独设置）</div>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              {landingAvatarInput ? (
+                <img src={landingAvatarInput} style={{ width: 36, height: 36, borderRadius: "50%", objectFit: "cover", flexShrink: 0 }} onError={e => e.target.style.display = "none"} />
+              ) : (
+                <div style={{ width: 36, height: 36, borderRadius: "50%", background: "var(--c-surface)", border: `0.5px solid var(--c-border)`, flexShrink: 0 }} />
+              )}
+              <input value={landingAvatarInput} onChange={e => setLandingAvatarInput(e.target.value)} placeholder="粘贴图片链接…"
+                style={{ flex: 1, border: `0.5px solid var(--c-border)`, borderRadius: 8, padding: "8px 10px", fontSize: 16, fontFamily: "inherit", outline: "none", background: "var(--c-bg)", color: "var(--c-text1)" }} />
+            </div>
+          </div>
+          <div>
+            <div style={{ fontSize: 9.5, color: "var(--c-text3)", marginBottom: 6 }}>主页那行字</div>
+            <input value={landingQuoteInput} onChange={e => setLandingQuoteInput(e.target.value)} placeholder="不是在等你回来，只是刚好一直在。"
+              style={{ width: "100%", border: `0.5px solid var(--c-border)`, borderRadius: 8, padding: "8px 10px", fontSize: 16, fontFamily: "inherit", outline: "none", background: "var(--c-bg)", color: "var(--c-text1)" }} />
           </div>
         </div>
         <div style={{ fontSize: 10, color: "var(--c-text3)", marginBottom: 8, letterSpacing: "0.08em" }}>角色设定</div>
@@ -1890,6 +1915,8 @@ export default function App() {
   const [theme, setTheme] = useState(() => localStorage.getItem("echo-theme") || "日间");
   const [avatarUrl, setAvatarUrl] = useState("");
   const [userAvatarUrl, setUserAvatarUrl] = useState("");
+  const [landingAvatarUrl, setLandingAvatarUrl] = useState("");
+  const [landingQuote, setLandingQuote] = useState("不是在等你回来，只是刚好一直在。");
 
   // 主题变化时同步CSS变量 + 持久化
   useEffect(() => {
@@ -1986,6 +2013,8 @@ export default function App() {
     fetch(`${API_BASE}/settings`).then(r => r.json()).then(data => {
       if (data.avatar_url) setAvatarUrl(data.avatar_url);
       if (data.user_avatar_url) setUserAvatarUrl(data.user_avatar_url);
+      if (data.landing_avatar_url) setLandingAvatarUrl(data.landing_avatar_url);
+      if (data.landing_quote) setLandingQuote(data.landing_quote);
     }).catch(() => {});
   }, []);
 
@@ -2007,7 +2036,7 @@ export default function App() {
     ? Math.floor((new Date() - new Date(cycleData.lastPeriodStart)) / 86400000) % (cycleData.avgLength || 28) + 1
     : null;
 
-  if (page === "landing") return <LandingPage setPage={setPage} mailbox={mailbox} avatarUrl={avatarUrl} userAvatarUrl={userAvatarUrl} pendingReminders={reminders.filter(r => r.status === "pending").length} />;
+  if (page === "landing") return <LandingPage setPage={setPage} mailbox={mailbox} avatarUrl={avatarUrl} userAvatarUrl={userAvatarUrl} pendingReminders={reminders.filter(r => r.status === "pending").length} landingAvatarUrl={landingAvatarUrl} landingQuote={landingQuote} />;
   if (page === "chat") return <ChatPage setPage={setPage} avatarUrl={avatarUrl} userAvatarUrl={userAvatarUrl} />;
   if (page === "search") return <SearchPage setPage={setPage} />;
   if (page === "more") return <MorePage setPage={setPage} mailbox={mailbox} diaryCount={diaryEntries.length} cycleDay={cycleDay} cycleAvgLength={cycleData.avgLength} reminders={reminders} />;
@@ -2017,7 +2046,7 @@ export default function App() {
   if (page === "mailboxFull") return <MailboxPage setPage={setPage} mailbox={mailbox} setMailbox={setMailbox} />;
   if (page === "status") return <StatusPage setPage={setPage} driveState={driveState} driveLoading={driveLoading} />;
   if (page === "settingsHub") return <SettingsHubPage setPage={setPage} theme={theme} setTheme={setTheme} />;
-  if (page === "persona") return <PersonaPage setPage={setPage} avatarUrl={avatarUrl} setAvatarUrl={setAvatarUrl} userAvatarUrl={userAvatarUrl} setUserAvatarUrl={setUserAvatarUrl} />;
+  if (page === "persona") return <PersonaPage setPage={setPage} avatarUrl={avatarUrl} setAvatarUrl={setAvatarUrl} userAvatarUrl={userAvatarUrl} setUserAvatarUrl={setUserAvatarUrl} landingAvatarUrl={landingAvatarUrl} setLandingAvatarUrl={setLandingAvatarUrl} landingQuote={landingQuote} setLandingQuote={setLandingQuote} />;
   if (page === "data") return <DataPage setPage={setPage} />;
   if (page === "memory") return <MemoryPage setPage={setPage} />;
   if (page === "usage") return <UsagePage setPage={setPage} />;
