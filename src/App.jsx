@@ -227,10 +227,16 @@ function MessageItem({ msg }) {
     );
   }
 
-  const segments = (msg.content || "")
+  const rawSegments = (msg.content || "")
     .split(/\n/)
     .map(s => s.trim())
     .filter(Boolean);
+
+  const segments = rawSegments.flatMap(seg => {
+    if (seg.length <= 22) return [seg];
+    const parts = seg.split(/(?<=[。！？~～])/).map(s => s.trim()).filter(Boolean);
+    return parts.length > 1 ? parts : [seg];
+  });
 
   return (
     <div style={{ alignSelf: "flex-start", maxWidth: "80%" }}>
@@ -530,7 +536,7 @@ function ChatPage({ setPage, avatarUrl, userAvatarUrl }) {
       </div>
 
       {/* 顶部导航：双头像+名字在左，功能图标在右 */}
-      <div style={{ padding: "10px 16px", borderBottom: `0.5px solid rgba(200,205,210,0.4)`, display: "flex", alignItems: "center", background: "rgba(200,205,210,0.6)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", gap: 10, flexShrink: 0 }}>
+      <div style={{ padding: "10px 16px", borderBottom: `0.5px solid rgba(255,255,255,0.3)`, display: "flex", alignItems: "center", background: "rgba(240,244,250,0.75)", backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)", gap: 10, flexShrink: 0 }}>
         <div onClick={() => setSidebarOpen(true)} style={{ cursor: "pointer", flexShrink: 0, display: "flex", alignItems: "center" }}>
           {/* 用户头像 */}
           {userAvatarUrl ? (
@@ -576,7 +582,7 @@ function ChatPage({ setPage, avatarUrl, userAvatarUrl }) {
       </div>
 
       {/* 输入框 */}
-      <div style={{ borderTop: `0.5px solid rgba(200,205,210,0.4)`, background: "rgba(200,205,210,0.6)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)", flexShrink: 0 }}>
+      <div style={{ borderTop: `0.5px solid rgba(255,255,255,0.3)`, background: "rgba(240,244,250,0.75)", backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)", flexShrink: 0 }}>
         {(attachment || uploading) && (
           <div style={{ padding: "8px 14px 0", display: "flex", alignItems: "center", gap: 8 }}>
             {uploading ? (
