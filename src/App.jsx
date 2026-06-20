@@ -237,48 +237,92 @@ function MessageItem({ msg }) {
   );
 }
 
-// ── LandingPage（开屏：在 + 留言预览 + 进来按钮） ─────────────────
-function LandingPage({ setPage, mailbox }) {
-  const unread = (mailbox || []).filter(m => !m.read);
-  const preview = (mailbox || []).slice(0, 2);
-  const hour = new Date().getHours();
-  const timeLabel = hour >= 23 || hour < 5 ? "深夜" : hour < 11 ? "早上" : hour < 14 ? "中午" : hour < 18 ? "下午" : "晚上";
-  const dateLabel = new Date().toLocaleDateString("zh", { month: "numeric", day: "numeric" });
+// ── LandingPage ───────────────────────────────────────────────
+const ANNIVERSARY = new Date("2026-06-02");
+
+function LandingPage({ setPage, mailbox, avatarUrl, userAvatarUrl, pendingReminders }) {
+  const now = new Date();
+  const hour = now.getHours();
+  const greeting = hour >= 23 || hour < 5 ? "深夜了" : hour < 11 ? "早上好" : hour < 14 ? "中午好" : hour < 18 ? "下午好" : "晚上好";
+  const timeStr = now.toLocaleTimeString("zh", { hour: "2-digit", minute: "2-digit", hour12: false });
+  const dateStr = `${now.getFullYear()} · ${now.getMonth() + 1}月${now.getDate()}日 · 周${"日一二三四五六"[now.getDay()]}`;
+  const days = Math.floor((now - ANNIVERSARY) / 86400000);
+  const latestMsg = (mailbox || []).find(m => m);
 
   return (
-    <div style={{ height: "100vh", background: "var(--c-bg)", display: "flex", flexDirection: "column", fontFamily: FONT }}>
-      <div style={{ padding: "18px 18px 0", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <span style={{ fontSize: 11, color: "var(--c-text3)" }}>{timeLabel} · {dateLabel}</span>
-        <span style={{ fontSize: 11, color: "var(--c-text2)", display: "flex", alignItems: "center", gap: 5 }}>
-          <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--c-accent)", display: "inline-block" }} />在
-        </span>
+    <div style={{ height: "100vh", display: "flex", flexDirection: "column", background: "#F6F2F1", fontFamily: FONT, overflowY: "auto" }}>
+
+      {/* 时间 */}
+      <div style={{ padding: "30px 22px 20px", textAlign: "center" }}>
+        <div style={{ fontSize: 9, color: "#C9A2A2", letterSpacing: ".12em", marginBottom: 10 }}>{greeting}</div>
+        <div style={{ fontFamily: "'Playfair Display','Noto Serif SC',serif", fontSize: 58, color: "#16131F", fontWeight: 400, lineHeight: 1, letterSpacing: ".02em" }}>{timeStr}</div>
+        <div style={{ fontSize: 10, color: "#C9A2A2", marginTop: 10, letterSpacing: ".06em" }}>{dateStr}</div>
       </div>
 
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 14 }}>
-        <div style={{ width: 64, height: 64, borderRadius: "50%", background: "var(--c-accent)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--c-bg)", fontSize: 17, letterSpacing: "0.05em" }}>在</div>
-        <div style={{ textAlign: "center" }}>
-          <div style={{ fontSize: 15, color: "var(--c-text1)", marginBottom: 5 }}>{timeLabel}了。</div>
-          <div style={{ fontSize: 11.5, color: "var(--c-text3)" }}>入口在。</div>
-        </div>
-        <div onClick={() => setPage("chat")} style={{ border: `0.5px solid var(--c-accent)`, borderRadius: 20, padding: "7px 28px", fontSize: 12, color: "var(--c-text2)", marginTop: 6, cursor: "pointer" }}>进来</div>
-      </div>
+      {/* 纪念日 + 功能卡 */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 9, margin: "0 16px 10px" }}>
 
-      {preview.length > 0 && (
-        <div style={{ padding: "16px 18px 22px", background: "var(--c-surface)", borderTop: `0.5px solid var(--c-border)` }}>
-          <div style={{ display: "flex", alignItems: "center", marginBottom: 12 }}>
-            <span style={{ fontSize: 11, color: "var(--c-text2)" }}>留言</span>
-            <span style={{ fontSize: 10, color: "var(--c-text3)", marginLeft: 6 }}>{unread.length}条未读</span>
-            <span style={{ flex: 1 }} />
-            <span onClick={() => setPage("mailboxFull")} style={{ fontSize: 10, color: "var(--c-accent)", cursor: "pointer" }}>全部</span>
+        {/* 纪念日卡 */}
+        <div style={{ background: "#F0D9E4", borderRadius: 16, padding: "14px 12px 16px", display: "flex", flexDirection: "column", alignItems: "center", position: "relative" }}>
+          {/* 装饰小点 */}
+          <div style={{ position: "absolute", top: 10, left: "50%", transform: "translateX(-50%)", width: 5, height: 5, borderRadius: "50%", background: "#e8b4c0" }} />
+
+          {/* 名字标签 */}
+          <div style={{ display: "flex", justifyContent: "space-between", width: "100%", marginBottom: 10, marginTop: 6 }}>
+            <div style={{ background: "rgba(255,255,255,0.6)", borderRadius: 20, padding: "2px 8px", fontSize: 9, color: "#9a7080" }}>Lin</div>
+            <div style={{ background: "rgba(255,255,255,0.6)", borderRadius: 20, padding: "2px 8px", fontSize: 9, color: "#9a7080" }}>C</div>
           </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
-            {preview.map(m => (
-              <div key={m.id} onClick={() => setPage("chat")}
-                style={{ background: "var(--c-bg)", border: `0.5px solid var(--c-border)`, borderRadius: 10, padding: "10px 13px", boxShadow: "0 1px 3px rgba(104,110,122,0.06)", cursor: "pointer" }}>
-                <div style={{ fontSize: 12.5, color: "var(--c-text1)", lineHeight: 1.6 }}>{m.content}</div>
-                <div style={{ fontSize: 10, color: "var(--c-text3)", marginTop: 6 }}>{m.time}</div>
-              </div>
-            ))}
+
+          {/* 双头像 + 心跳线 */}
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 0, marginBottom: 12 }}>
+            {userAvatarUrl ? (
+              <img src={userAvatarUrl} style={{ width: 38, height: 38, borderRadius: "50%", objectFit: "cover", border: "2px solid rgba(255,255,255,0.8)", flexShrink: 0 }} />
+            ) : (
+              <div style={{ width: 38, height: 38, borderRadius: "50%", background: "#e0c0d0", border: "2px solid rgba(255,255,255,0.8)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, color: "#9a7080" }}>你</div>
+            )}
+            <svg width="44" height="22" viewBox="0 0 44 22" fill="none" style={{ flexShrink: 0 }}>
+              <polyline points="0,11 8,11 11,3 14,18 17,7 20,11 24,11 27,3 30,18 33,7 36,11 44,11"
+                stroke="#d4a0b4" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+            </svg>
+            {avatarUrl ? (
+              <img src={avatarUrl} style={{ width: 38, height: 38, borderRadius: "50%", objectFit: "cover", border: "2px solid rgba(255,255,255,0.8)", flexShrink: 0 }} />
+            ) : (
+              <div style={{ width: 38, height: 38, borderRadius: "50%", background: "#d4b0c4", border: "2px solid rgba(255,255,255,0.8)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, color: "#7a5060" }}>C</div>
+            )}
+          </div>
+
+          <div style={{ fontSize: 8.5, color: "#b890a0", letterSpacing: ".06em", marginBottom: 3 }}>· In Love ·</div>
+          <div style={{ fontFamily: "'Playfair Display','Noto Serif SC',serif", fontSize: 24, color: "#6B3836", fontWeight: 600, lineHeight: 1 }}>
+            {days} <span style={{ fontSize: 12, fontWeight: 400 }}>days</span>
+          </div>
+        </div>
+
+        {/* 提醒 + 进来 */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
+          <div onClick={() => setPage("reminder")} style={{ background: "#BC788D", borderRadius: 14, padding: "12px 13px", flex: 1, cursor: "pointer" }}>
+            <div style={{ fontSize: 8.5, color: "#f0dce4", letterSpacing: ".06em", marginBottom: 5 }}>提醒</div>
+            <div style={{ fontSize: 15, color: "#fff" }}>{pendingReminders || 0} <span style={{ fontSize: 10, fontWeight: 400 }}>件</span></div>
+            <div style={{ fontSize: 9, color: "#e0b8c8", marginTop: 2 }}>待处理</div>
+          </div>
+          <div onClick={() => setPage("chat")} style={{ background: "#BC788D", borderRadius: 14, padding: "12px 13px", flex: 1, display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer" }}>
+            <div>
+              <div style={{ fontSize: 8.5, color: "#f0dce4", letterSpacing: ".06em", marginBottom: 5 }}>进来</div>
+              <div style={{ fontSize: 13, color: "#fff" }}>聊天</div>
+            </div>
+            <span style={{ fontSize: 18, color: "#e0b8c8" }}>›</span>
+          </div>
+        </div>
+      </div>
+
+      {/* 信封留言 */}
+      {latestMsg && (
+        <div onClick={() => setPage("mailboxFull")} style={{ margin: "0 16px 24px", borderRadius: 14, overflow: "hidden", border: "1px solid #d4a0a8", cursor: "pointer" }}>
+          <div style={{ background: "#BC788D", height: 28, display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <span style={{ fontSize: 9, color: "#f0dce4", letterSpacing: ".08em" }}>✉ 留言</span>
+          </div>
+          <div style={{ background: "#F0D9E4", padding: "12px 14px" }}>
+            <div style={{ fontSize: 9, color: "#C9A2A2", marginBottom: 6 }}>{latestMsg.time}</div>
+            <div style={{ fontFamily: "'Playfair Display','Noto Serif SC',serif", fontSize: 13, color: "#6B3836", lineHeight: 1.7 }}>{latestMsg.content}</div>
           </div>
         </div>
       )}
@@ -289,7 +333,7 @@ function LandingPage({ setPage, mailbox }) {
 }
 
 // ── ChatPage ──────────────────────────────────────────────────
-function ChatPage({ setPage, avatarUrl }) {
+function ChatPage({ setPage, avatarUrl, userAvatarUrl }) {
   const [sessions, setSessions] = useState([]);
   const [activeId, setActiveId] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -465,18 +509,25 @@ function ChatPage({ setPage, avatarUrl }) {
         </div>
       </div>
 
-      {/* 顶部导航：头像+名字在左，功能图标在右 */}
+      {/* 顶部导航：双头像+名字在左，功能图标在右 */}
       <div style={{ padding: "10px 16px", borderBottom: `0.5px solid var(--c-border)`, display: "flex", alignItems: "center", background: "var(--c-bg)", gap: 10, flexShrink: 0 }}>
-        <div onClick={() => setSidebarOpen(true)} style={{ cursor: "pointer", flexShrink: 0 }}>
-          {avatarUrl ? (
-            <img src={avatarUrl} style={{ width: 36, height: 36, borderRadius: "50%", objectFit: "cover", display: "block" }} />
+        <div onClick={() => setSidebarOpen(true)} style={{ cursor: "pointer", flexShrink: 0, display: "flex", alignItems: "center" }}>
+          {/* 用户头像 */}
+          {userAvatarUrl ? (
+            <img src={userAvatarUrl} style={{ width: 32, height: 32, borderRadius: "50%", objectFit: "cover", display: "block", border: `1.5px solid var(--c-bg)`, zIndex: 1 }} />
           ) : (
-            <div style={{ width: 36, height: 36, borderRadius: "50%", background: "var(--c-accent)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, color: "var(--c-bg)", fontWeight: 500 }}>C</div>
+            <div style={{ width: 32, height: 32, borderRadius: "50%", background: "var(--c-muted)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, color: "var(--c-bg)", border: `1.5px solid var(--c-bg)`, zIndex: 1 }}>你</div>
+          )}
+          {/* Echo头像，稍微往左叠 */}
+          {avatarUrl ? (
+            <img src={avatarUrl} style={{ width: 32, height: 32, borderRadius: "50%", objectFit: "cover", display: "block", marginLeft: -10, border: `1.5px solid var(--c-bg)` }} />
+          ) : (
+            <div style={{ width: 32, height: 32, borderRadius: "50%", background: "var(--c-accent)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, color: "var(--c-bg)", fontWeight: 500, marginLeft: -10, border: `1.5px solid var(--c-bg)` }}>C</div>
           )}
         </div>
         <div style={{ flex: 1 }}>
-          <div style={{ fontSize: 14, fontWeight: 500, color: "var(--c-text1)", lineHeight: 1.2 }}>Echo</div>
-          <div style={{ fontSize: 11, color: "var(--c-text3)" }}>在线</div>
+          <div style={{ fontFamily: "'Playfair Display', 'Noto Serif SC', serif", fontSize: 14, color: "var(--c-text1)", lineHeight: 1.2, letterSpacing: "0.02em" }}>Echo</div>
+          <div style={{ fontSize: 10, color: "var(--c-text3)", marginTop: 1 }}>在你身边</div>
         </div>
         <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
           <IconSearch size={18} color="var(--c-text3)" onClick={() => setPage("search")} />
@@ -1459,33 +1510,35 @@ function SettingsHubPage({ setPage, theme, setTheme }) {
   );
 }
 
-// ── PersonaPage（原来的Settings页，改名归到设置hub下面） ───────────
-function PersonaPage({ setPage, avatarUrl: initAvatarUrl, setAvatarUrl: setGlobalAvatarUrl }) {
+// ── PersonaPage ─────────────────────────────────────────────────
+function PersonaPage({ setPage, avatarUrl: initAvatarUrl, setAvatarUrl: setGlobalAvatarUrl, userAvatarUrl: initUserAvatarUrl, setUserAvatarUrl: setGlobalUserAvatarUrl }) {
   const [systemPrompt, setSystemPrompt] = useState("");
   const [avatarInput, setAvatarInput] = useState(initAvatarUrl || "");
+  const [userAvatarInput, setUserAvatarInput] = useState(initUserAvatarUrl || "");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [saveError, setSaveError] = useState(false);
 
   useEffect(() => {
     fetch(`${API_BASE}/settings`).then(r => r.json()).then(data => {
       setSystemPrompt(data.system_prompt || "");
       setAvatarInput(data.avatar_url || "");
+      setUserAvatarInput(data.user_avatar_url || "");
       setLoading(false);
     });
   }, []);
-
-  const [saveError, setSaveError] = useState(false);
 
   const save = async () => {
     setSaving(true); setSaveError(false);
     try {
       const res = await fetch(`${API_BASE}/settings`, {
         method: "PUT", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ system_prompt: systemPrompt, avatar_url: avatarInput.trim() }),
+        body: JSON.stringify({ system_prompt: systemPrompt, avatar_url: avatarInput.trim(), user_avatar_url: userAvatarInput.trim() }),
       });
       if (!res.ok) throw new Error("failed");
       setGlobalAvatarUrl(avatarInput.trim());
+      setGlobalUserAvatarUrl(userAvatarInput.trim());
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
     } catch {
@@ -1506,18 +1559,32 @@ function PersonaPage({ setPage, avatarUrl: initAvatarUrl, setAvatarUrl: setGloba
         </span>
       </div>
       <div style={{ flex: 1, overflowY: "auto", padding: 18 }}>
-        <div style={{ fontSize: 10, color: "var(--c-text3)", marginBottom: 8, letterSpacing: "0.08em" }}>头像链接</div>
-        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
-          {avatarInput ? (
-            <img src={avatarInput} style={{ width: 42, height: 42, borderRadius: "50%", objectFit: "cover", flexShrink: 0 }} onError={e => e.target.style.display = "none"} />
-          ) : (
-            <div style={{ width: 42, height: 42, borderRadius: "50%", background: "var(--c-surface)", border: `0.5px solid var(--c-border)`, flexShrink: 0 }} />
-          )}
-          <input value={avatarInput} onChange={e => setAvatarInput(e.target.value)}
-            placeholder="粘贴图片链接…"
-            style={{ flex: 1, border: `0.5px solid var(--c-border)`, borderRadius: 10, padding: "8px 12px", fontSize: 16, fontFamily: "inherit", outline: "none", background: "var(--c-bg)", color: "var(--c-text1)" }}
-            onFocus={e => e.target.style.borderColor = 'var(--c-accent)'}
-            onBlur={e => e.target.style.borderColor = 'var(--c-border)'} />
+        <div style={{ fontSize: 10, color: "var(--c-text3)", marginBottom: 10, letterSpacing: "0.08em" }}>头像</div>
+        <div style={{ display: "flex", gap: 14, marginBottom: 22 }}>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 9.5, color: "var(--c-text3)", marginBottom: 6 }}>Echo</div>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              {avatarInput ? (
+                <img src={avatarInput} style={{ width: 34, height: 34, borderRadius: "50%", objectFit: "cover", flexShrink: 0 }} onError={e => e.target.style.display = "none"} />
+              ) : (
+                <div style={{ width: 34, height: 34, borderRadius: "50%", background: "var(--c-accent)", flexShrink: 0 }} />
+              )}
+              <input value={avatarInput} onChange={e => setAvatarInput(e.target.value)} placeholder="粘贴图片链接…"
+                style={{ flex: 1, border: `0.5px solid var(--c-border)`, borderRadius: 8, padding: "6px 10px", fontSize: 16, fontFamily: "inherit", outline: "none", background: "var(--c-bg)", color: "var(--c-text1)" }} />
+            </div>
+          </div>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 9.5, color: "var(--c-text3)", marginBottom: 6 }}>我的</div>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              {userAvatarInput ? (
+                <img src={userAvatarInput} style={{ width: 34, height: 34, borderRadius: "50%", objectFit: "cover", flexShrink: 0 }} onError={e => e.target.style.display = "none"} />
+              ) : (
+                <div style={{ width: 34, height: 34, borderRadius: "50%", background: "var(--c-muted)", flexShrink: 0 }} />
+              )}
+              <input value={userAvatarInput} onChange={e => setUserAvatarInput(e.target.value)} placeholder="粘贴图片链接…"
+                style={{ flex: 1, border: `0.5px solid var(--c-border)`, borderRadius: 8, padding: "6px 10px", fontSize: 16, fontFamily: "inherit", outline: "none", background: "var(--c-bg)", color: "var(--c-text1)" }} />
+            </div>
+          </div>
         </div>
         <div style={{ fontSize: 10, color: "var(--c-text3)", marginBottom: 8, letterSpacing: "0.08em" }}>角色设定</div>
         {loading ? (
@@ -1716,6 +1783,7 @@ export default function App() {
   const [driveLoading, setDriveLoading] = useState(true);
   const [theme, setTheme] = useState(() => localStorage.getItem("echo-theme") || "日间");
   const [avatarUrl, setAvatarUrl] = useState("");
+  const [userAvatarUrl, setUserAvatarUrl] = useState("");
 
   // 主题变化时同步CSS变量 + 持久化
   useEffect(() => {
@@ -1811,6 +1879,7 @@ export default function App() {
   useEffect(() => {
     fetch(`${API_BASE}/settings`).then(r => r.json()).then(data => {
       if (data.avatar_url) setAvatarUrl(data.avatar_url);
+      if (data.user_avatar_url) setUserAvatarUrl(data.user_avatar_url);
     }).catch(() => {});
   }, []);
 
@@ -1832,8 +1901,8 @@ export default function App() {
     ? Math.floor((new Date() - new Date(cycleData.lastPeriodStart)) / 86400000) % (cycleData.avgLength || 28) + 1
     : null;
 
-  if (page === "landing") return <LandingPage setPage={setPage} mailbox={mailbox} />;
-  if (page === "chat") return <ChatPage setPage={setPage} avatarUrl={avatarUrl} />;
+  if (page === "landing") return <LandingPage setPage={setPage} mailbox={mailbox} avatarUrl={avatarUrl} userAvatarUrl={userAvatarUrl} pendingReminders={reminders.filter(r => r.status === "pending").length} />;
+  if (page === "chat") return <ChatPage setPage={setPage} avatarUrl={avatarUrl} userAvatarUrl={userAvatarUrl} />;
   if (page === "search") return <SearchPage setPage={setPage} />;
   if (page === "more") return <MorePage setPage={setPage} mailbox={mailbox} diaryCount={diaryEntries.length} cycleDay={cycleDay} cycleAvgLength={cycleData.avgLength} reminders={reminders} />;
   if (page === "diary") return <DiaryPage setPage={setPage} entries={diaryEntries} setEntries={setDiaryEntries} />;
@@ -1842,7 +1911,7 @@ export default function App() {
   if (page === "mailboxFull") return <MailboxPage setPage={setPage} mailbox={mailbox} setMailbox={setMailbox} />;
   if (page === "status") return <StatusPage setPage={setPage} driveState={driveState} driveLoading={driveLoading} />;
   if (page === "settingsHub") return <SettingsHubPage setPage={setPage} theme={theme} setTheme={setTheme} />;
-  if (page === "persona") return <PersonaPage setPage={setPage} avatarUrl={avatarUrl} setAvatarUrl={setAvatarUrl} />;
+  if (page === "persona") return <PersonaPage setPage={setPage} avatarUrl={avatarUrl} setAvatarUrl={setAvatarUrl} userAvatarUrl={userAvatarUrl} setUserAvatarUrl={setUserAvatarUrl} />;
   if (page === "data") return <DataPage setPage={setPage} />;
   if (page === "memory") return <MemoryPage setPage={setPage} />;
   if (page === "usage") return <UsagePage setPage={setPage} />;
