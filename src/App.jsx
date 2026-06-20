@@ -1386,19 +1386,18 @@ function MailboxPage({ setPage, mailbox, setMailbox }) {
           <div style={{ textAlign: "center", fontSize: 12, color: "#F4B6BE", padding: "50px 0" }}>暂时没有留言</div>
         ) : (mailbox || []).map((m, i) => {
           const isUnread = !m.read;
-          const envColor = isUnread ? getColor(i % 2) : "#F8C3C9";
           return (
             <div key={m.id} onClick={() => setPage("chat")}
-              style={{ borderRadius: 12, overflow: "hidden", border: `1px solid ${isUnread ? "#F4B6BE" : "#FBD0D5"}`, opacity: isUnread ? 1 : 0.55, cursor: "pointer" }}>
-              <div style={{ background: envColor, height: 26, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 12px" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                  {isUnread && <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#fff", display: "inline-block" }} />}
-                  <span style={{ fontSize: 8.5, color: "#fff", letterSpacing: ".06em" }}>✉ {isUnread ? "未读" : "已读"}</span>
+              style={{ borderRadius: 10, overflow: "hidden", border: `1px solid #FBD0D5`, opacity: isUnread ? 1 : 0.5, cursor: "pointer" }}>
+              <div style={{ background: "#F8C3C9", height: 22, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 10px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                  {isUnread && <span style={{ width: 4, height: 4, borderRadius: "50%", background: "#fff", display: "inline-block" }} />}
+                  <span style={{ fontSize: 8, color: "#fff", letterSpacing: ".06em" }}>✉ {isUnread ? "未读" : "已读"}</span>
                 </div>
-                <span style={{ fontSize: 9, color: isUnread ? "#fde0e4" : "#fff" }}>{m.time}</span>
+                <span style={{ fontSize: 8.5, color: "#fde0e4" }}>{m.time}</span>
               </div>
-              <div style={{ background: isUnread ? "#FFDDE1" : "#FFF0F0", padding: "11px 13px" }}>
-                <div style={{ fontFamily: "'DM Serif Display','Noto Serif SC',serif", fontSize: 13, color: "#7a3040", lineHeight: 1.7 }}>{m.content}</div>
+              <div style={{ background: "#FFDDE1", padding: "8px 12px" }}>
+                <div style={{ fontFamily: "'DM Serif Display','Noto Serif SC',serif", fontSize: 12.5, color: "#7a3040", lineHeight: 1.6, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>{m.content}</div>
               </div>
             </div>
           );
