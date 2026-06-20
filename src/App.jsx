@@ -305,7 +305,7 @@ function LandingPage({ setPage, mailbox, avatarUrl, userAvatarUrl, pendingRemind
         {/* 提醒 + 进来 */}
         <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
           <div onClick={() => setPage("reminder")} style={{ background: "#BFC8D5", borderRadius: 14, padding: "12px 13px", flex: 1, cursor: "pointer" }}>
-            <div style={{ fontSize: 8.5, color: "#e8edf4", letterSpacing: ".06em", marginBottom: 5 }}>提醒</div>
+            <div style={{ fontSize: 8.5, color: "#e8edf4", letterSpacing: ".06em", marginBottom: 5 }}>日程</div>
             <div style={{ fontSize: 15, color: "#fff" }}>{pendingReminders || 0} <span style={{ fontSize: 10, fontWeight: 400 }}>件</span></div>
             <div style={{ fontSize: 9, color: "#dde4ee", marginTop: 2 }}>待处理</div>
           </div>
@@ -695,7 +695,7 @@ function MorePage({ setPage, mailbox, diaryCount, cycleDay, cycleAvgLength, remi
   const topCards = [
     { key: "diary", label: "日记", sub: diaryCount ? `第 ${diaryCount} 篇` : "还没写", dark: true },
     { key: "cycle", label: "周期", sub: cycleDay ? `第 ${cycleDay} 天` : "还没设置", dark: false },
-    { key: "reminder", label: "提醒", sub: pendingReminders > 0 ? `${pendingReminders} 条待处理` : "没有待办", dark: false },
+    { key: "reminder", label: "日程", sub: pendingReminders > 0 ? `${pendingReminders} 件待处理` : "今日清空", dark: false },
     { key: "mailboxFull", label: "留言", sub: unread > 0 ? `${unread} 条未读` : "没有新留言", dark: false },
   ];
 
@@ -757,7 +757,7 @@ function MorePage({ setPage, mailbox, diaryCount, cycleDay, cycleAvgLength, remi
           )}
           {pendingReminders > 0 && (
             <span onClick={() => setPage("reminder")} style={{ display: "inline-flex", alignItems: "center", gap: 6, border: `0.5px solid var(--c-border)`, borderRadius: 20, padding: "6px 14px", fontSize: 11, color: "var(--c-text2)", background: "var(--c-bg)", cursor: "pointer" }}>
-              <span style={{ fontSize: 9.5, color: "var(--c-text3)" }}>提醒</span>{pendingReminders} 条待处理
+              <span style={{ fontSize: 9.5, color: "var(--c-text3)" }}>日程</span>{pendingReminders} 件待处理
             </span>
           )}
           {unread > 0 && (
@@ -775,28 +775,56 @@ function MorePage({ setPage, mailbox, diaryCount, cycleDay, cycleAvgLength, remi
   );
 }
 
-// ── ReminderPage ───────────────────────────────────────────────
+// ── ReminderPage（日程风格）─────────────────────────────────────
+const SCHEDULE_QUOTES = [
+  "先做一件最小的事。",
+  "不必全部完成，但必须全部开始。",
+  "今天的事，今天轻轻放下。",
+  "一件一件来，都会好的。",
+  "慢慢来，比较快。",
+];
+
 function ReminderPage({ setPage, reminders, setReminders }) {
   const [adding, setAdding] = useState(false);
   const [newContent, setNewContent] = useState("");
   const [newDueDate, setNewDueDate] = useState("");
   const [saving, setSaving] = useState(false);
+  const [activeTab, setActiveTab] = useState("today");
 
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  const quote = SCHEDULE_QUOTES[new Date().getDate() % SCHEDULE_QUOTES.length];
 
-  const isOverdue = (due) => due && new Date(due) < today;
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const tomorrow = new Date(today); tomorrow.setDate(today.getDate() + 1);
+  const dayAfter = new Date(today); dayAfter.setDate(today.getDate() + 2);
 
-  const pending = (reminders || [])
-    .filter(r => r.status === "pending")
-    .sort((a, b) => {
-      if (!a.due_date && !b.due_date) return 0;
-      if (!a.due_date) return 1;
-      if (!b.due_date) return -1;
-      return new Date(a.due_date) - new Date(b.due_date);
-    });
+  const fmtDate = (d) => {
+    if (!d) return null;
+    const dt = new Date(d);
+    return `${dt.getMonth() + 1}月${dt.getDate()}日`;
+  };
 
-  const done = (reminders || []).filter(r => r.status === "done");
+  const getSlot = (r) => {
+    if (!r.due_date) return "today";
+    const d = new Date(r.due_date); d.setHours(0, 0, 0, 0);
+    if (d < today) return "overdue";
+    if (d.getTime() === today.getTime()) return "today";
+    if (d.getTime() === tomorrow.getTime()) return "tomorrow";
+    return "later";
+  };
+
+  const all = reminders || [];
+  const bySlot = { today: [], tomorrow: [], later: [], overdue: [] };
+  all.forEach(r => bySlot[getSlot(r)].push(r));
+
+  const todayPending = bySlot.today.filter(r => r.status === "pending");
+  const todayDone = bySlot.today.filter(r => r.status === "done");
+  const overdueCount = bySlot.overdue.filter(r => r.status === "pending").length;
+  const nextItem = todayPending[0];
+
+  const currentItems = activeTab === "today" ? bySlot.today
+    : activeTab === "tomorrow" ? bySlot.tomorrow
+    : activeTab === "later" ? bySlot.later
+    : bySlot.overdue;
 
   const addReminder = async () => {
     if (!newContent.trim()) return;
@@ -807,10 +835,7 @@ function ReminderPage({ setPage, reminders, setReminders }) {
         body: JSON.stringify({ content: newContent.trim(), due_date: newDueDate || null }),
       });
       const d = await res.json();
-      if (d.id) {
-        setReminders(prev => [d, ...prev]);
-        setNewContent(""); setNewDueDate(""); setAdding(false);
-      }
+      if (d.id) { setReminders(prev => [d, ...prev]); setNewContent(""); setNewDueDate(""); setAdding(false); }
     } catch {} finally { setSaving(false); }
   };
 
@@ -824,28 +849,31 @@ function ReminderPage({ setPage, reminders, setReminders }) {
     setReminders(prev => prev.filter(r => r.id !== id));
   };
 
-  const fmtDate = (d) => {
-    if (!d) return null;
-    const dt = new Date(d);
-    return `${dt.getMonth() + 1}月${dt.getDate()}日`;
-  };
+  const TABS = [
+    { key: "today", label: "今天" },
+    { key: "tomorrow", label: "明天" },
+    { key: "later", label: "以后" },
+    { key: "overdue", label: "过期", red: true },
+  ];
+
+  const dateStr = new Date().toLocaleDateString("zh", { year: "numeric", month: "long", day: "numeric" });
 
   if (adding) {
     return (
       <div style={{ height: "100vh", display: "flex", flexDirection: "column", background: "var(--c-bg)", fontFamily: FONT }}>
         <div style={{ padding: "12px 16px", borderBottom: `0.5px solid var(--c-border)`, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <span onClick={() => { setAdding(false); setNewContent(""); setNewDueDate(""); }} style={{ fontSize: 12, color: "var(--c-text3)", cursor: "pointer" }}>取消</span>
-          <span style={{ fontSize: 11.5, color: "var(--c-text2)" }}>新提醒</span>
+          <span style={{ fontFamily: "'Playfair Display','Noto Serif SC',serif", fontSize: 14, color: "var(--c-text2)", letterSpacing: ".06em" }}>新日程</span>
           <span onClick={addReminder} style={{ fontSize: 11.5, color: saving ? "var(--c-text3)" : "var(--c-accent)", cursor: saving ? "default" : "pointer" }}>{saving ? "保存中…" : "保存"}</span>
         </div>
-        <div style={{ flex: 1, padding: "20px 18px", display: "flex", flexDirection: "column", gap: 20 }}>
+        <div style={{ flex: 1, padding: "24px 20px", display: "flex", flexDirection: "column", gap: 24 }}>
           <div>
-            <div style={{ fontSize: 9, color: "var(--c-text3)", letterSpacing: "0.08em", marginBottom: 8 }}>提醒内容</div>
-            <textarea value={newContent} onChange={e => setNewContent(e.target.value)} placeholder="写下要提醒自己的事…" rows={3} autoFocus
+            <div style={{ fontSize: 9, color: "var(--c-text3)", letterSpacing: "0.08em", marginBottom: 10 }}>内容</div>
+            <textarea value={newContent} onChange={e => setNewContent(e.target.value)} placeholder="写下要做的事…" rows={3} autoFocus
               style={{ width: "100%", border: "none", borderBottom: `0.5px solid var(--c-border)`, outline: "none", fontSize: 16, fontFamily: "inherit", resize: "none", color: "var(--c-text1)", lineHeight: 1.7, background: "transparent", paddingBottom: 10 }} />
           </div>
           <div>
-            <div style={{ fontSize: 9, color: "var(--c-text3)", letterSpacing: "0.08em", marginBottom: 8 }}>截止日期（可以不填）</div>
+            <div style={{ fontSize: 9, color: "var(--c-text3)", letterSpacing: "0.08em", marginBottom: 10 }}>截止日期（可以不填）</div>
             <input type="date" value={newDueDate} onChange={e => setNewDueDate(e.target.value)}
               style={{ border: `0.5px solid var(--c-border)`, borderRadius: 10, padding: "8px 12px", fontSize: 16, fontFamily: "inherit", outline: "none", background: "var(--c-bg)", color: newDueDate ? "var(--c-text1)" : "var(--c-text3)", width: "100%" }} />
           </div>
@@ -857,57 +885,91 @@ function ReminderPage({ setPage, reminders, setReminders }) {
 
   return (
     <div style={{ height: "100vh", display: "flex", flexDirection: "column", background: "var(--c-bg)", fontFamily: FONT }}>
-      <div style={{ padding: "12px 16px", borderBottom: `0.5px solid var(--c-border)`, display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
+
+      {/* 顶部导航 */}
+      <div style={{ padding: "14px 18px 2px", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
         <BackChevron onClick={() => setPage("more")} />
-        <span style={{ fontSize: 11.5, color: "var(--c-text2)" }}>提醒</span>
+        <span style={{ fontFamily: "'Playfair Display','Noto Serif SC',serif", fontSize: 18, color: "var(--c-text1)", letterSpacing: ".1em" }}>日 程</span>
         <span onClick={() => setAdding(true)} style={{ fontSize: 20, color: "var(--c-accent)", cursor: "pointer", lineHeight: 1 }}>＋</span>
       </div>
+      <div style={{ textAlign: "center", fontSize: 10, color: "var(--c-text3)", paddingBottom: 10, letterSpacing: ".04em" }}>{dateStr}</div>
 
-      <div style={{ flex: 1, overflowY: "auto", padding: "14px 14px" }}>
+      {/* 摘要 */}
+      <div style={{ textAlign: "center", fontSize: 10, color: "var(--c-text3)", padding: "0 20px 8px", letterSpacing: ".02em" }}>
+        今日待办 {todayPending.length} 件 · 已完成 {todayDone.length} 件 · 下一项 {nextItem ? nextItem.content.slice(0, 8) + (nextItem.content.length > 8 ? "…" : "") : "暂无"}
+      </div>
 
-        {pending.length === 0 && done.length === 0 && (
-          <div style={{ textAlign: "center", padding: "50px 0", fontSize: 12, color: "var(--c-text3)" }}>没有提醒，点右上角添加</div>
+      {/* 格言 */}
+      <div style={{ textAlign: "center", fontFamily: "'Playfair Display','Noto Serif SC',serif", fontSize: 13.5, color: "var(--c-text2)", padding: "4px 28px 16px", lineHeight: 1.7, fontStyle: "italic" }}>
+        「{quote}」
+      </div>
+
+      {/* Tab */}
+      <div style={{ display: "flex", borderBottom: `0.5px solid var(--c-border)`, padding: "0 18px", flexShrink: 0 }}>
+        {TABS.map(t => (
+          <div key={t.key} onClick={() => setActiveTab(t.key)}
+            style={{ fontSize: 11, color: activeTab === t.key ? (t.red ? "#c07080" : "var(--c-text1)") : (t.red ? "#d4a0a8" : "var(--c-text3)"),
+              padding: "6px 10px 8px", cursor: "pointer", position: "relative", letterSpacing: ".02em" }}>
+            {t.label}{t.key === "overdue" && overdueCount > 0 ? ` ${overdueCount}` : ""}
+            {activeTab === t.key && (
+              <div style={{ position: "absolute", bottom: 0, left: 10, right: 10, height: 1.5, background: t.red ? "#c07080" : "var(--c-text1)", borderRadius: 1 }} />
+            )}
+          </div>
+        ))}
+      </div>
+
+      <div style={{ flex: 1, overflowY: "auto" }}>
+
+        {/* 下一项（只在今天Tab显示） */}
+        {activeTab === "today" && (
+          <div style={{ margin: "14px 16px 10px", border: `0.5px solid var(--c-border)`, borderRadius: 10, padding: "10px 14px" }}>
+            <div style={{ fontSize: 9, color: "var(--c-text3)", letterSpacing: ".08em", marginBottom: 6 }}>下一项</div>
+            {nextItem ? (
+              <>
+                <div style={{ fontSize: 12.5, color: "var(--c-text1)", lineHeight: 1.5 }}>{nextItem.content}</div>
+                <div style={{ fontSize: 10, color: "var(--c-text3)", marginTop: 3 }}>{nextItem.due_date ? fmtDate(nextItem.due_date) : "无截止日期"}</div>
+              </>
+            ) : (
+              <>
+                <div style={{ fontSize: 12, color: "var(--c-text3)" }}>暂无下一项</div>
+                <div style={{ fontSize: 10, color: "var(--c-text3)", marginTop: 2 }}>今日待办已经清空。</div>
+              </>
+            )}
+          </div>
         )}
 
-        {pending.length > 0 && (
-          <>
-            <div style={{ fontSize: 9, color: "var(--c-text3)", letterSpacing: "0.08em", marginBottom: 10, padding: "0 2px" }}>待处理</div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 9, marginBottom: 18 }}>
-              {pending.map(r => {
-                const overdue = isOverdue(r.due_date);
-                return (
-                  <div key={r.id} style={{ background: "var(--c-surface)", borderRadius: 12, padding: "11px 13px", display: "flex", alignItems: "flex-start", gap: 10 }}>
-                    <div onClick={() => markDone(r.id)} style={{ width: 18, height: 18, borderRadius: "50%", border: `1px solid var(--c-accent)`, flexShrink: 0, marginTop: 1, cursor: "pointer" }} />
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: 12.5, color: "var(--c-text1)", marginBottom: 4 }}>{r.content}</div>
-                      <div style={{ fontSize: 9.5, color: overdue ? "var(--c-warn)" : "var(--c-text3)" }}>
-                        {overdue ? `过期 · ${fmtDate(r.due_date)}` : r.due_date ? fmtDate(r.due_date) : "无截止日期"}
-                      </div>
-                    </div>
-                    <span onClick={() => deleteReminder(r.id)} style={{ fontSize: 11, color: "var(--c-text3)", cursor: "pointer", padding: "0 2px", flexShrink: 0 }}>删</span>
+        {/* 列表 */}
+        {currentItems.length === 0 ? (
+          <div style={{ textAlign: "center", padding: "40px 0", fontSize: 12, color: "var(--c-text3)" }}>这里空空的</div>
+        ) : (
+          <div style={{ padding: "4px 0" }}>
+            {currentItems.map(r => {
+              const isDone = r.status === "done";
+              const isOver = getSlot(r) === "overdue";
+              return (
+                <div key={r.id} style={{ display: "flex", alignItems: "flex-start", gap: 10, padding: "10px 16px", borderBottom: `0.5px solid var(--c-border)` }}>
+                  <div onClick={() => !isDone && markDone(r.id)}
+                    style={{ width: 18, height: 18, borderRadius: "50%", flexShrink: 0, marginTop: 2, cursor: isDone ? "default" : "pointer",
+                      border: isDone ? "none" : `1.5px solid ${isOver ? "#c07080" : "var(--c-accent)"}`,
+                      background: isDone ? "var(--c-good)" : "transparent",
+                      display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, color: "var(--c-bg)" }}>
+                    {isDone ? "✓" : ""}
                   </div>
-                );
-              })}
-            </div>
-          </>
-        )}
-
-        {done.length > 0 && (
-          <>
-            <div style={{ fontSize: 9, color: "var(--c-text3)", letterSpacing: "0.08em", marginBottom: 10, padding: "0 2px" }}>已完成</div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
-              {done.map(r => (
-                <div key={r.id} style={{ background: "var(--c-surface)", borderRadius: 12, padding: "11px 13px", display: "flex", alignItems: "flex-start", gap: 10, opacity: 0.5 }}>
-                  <div style={{ width: 18, height: 18, borderRadius: "50%", background: "var(--c-good)", flexShrink: 0, marginTop: 1, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, color: "var(--c-bg)" }}>✓</div>
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 12.5, color: "var(--c-text1)", textDecoration: "line-through", marginBottom: 4 }}>{r.content}</div>
-                    {r.due_date && <div style={{ fontSize: 9.5, color: "var(--c-text3)" }}>{fmtDate(r.due_date)}</div>}
+                    <div style={{ fontSize: 13, color: isDone ? "var(--c-text3)" : "var(--c-text1)", textDecoration: isDone ? "line-through" : "none", marginBottom: isDone ? 0 : 6, lineHeight: 1.4 }}>{r.content}</div>
+                    {!isDone && (
+                      <div style={{ display: "flex", gap: 5, flexWrap: "wrap" }}>
+                        <span onClick={() => markDone(r.id)} style={{ fontSize: 9.5, color: "var(--c-text3)", border: `0.5px solid var(--c-border)`, borderRadius: 20, padding: "2px 10px", cursor: "pointer" }}>已处理</span>
+                        {isOver && <span style={{ fontSize: 9.5, color: "#c07080", border: "0.5px solid #e8c0c8", borderRadius: 20, padding: "2px 10px" }}>{fmtDate(r.due_date)} · 过期</span>}
+                        {!isOver && r.due_date && <span style={{ fontSize: 9.5, color: "var(--c-text3)", border: `0.5px solid var(--c-border)`, borderRadius: 20, padding: "2px 10px" }}>{fmtDate(r.due_date)}</span>}
+                      </div>
+                    )}
                   </div>
-                  <span onClick={() => deleteReminder(r.id)} style={{ fontSize: 11, color: "var(--c-text3)", cursor: "pointer", padding: "0 2px", flexShrink: 0 }}>删</span>
+                  <span onClick={() => deleteReminder(r.id)} style={{ fontSize: 10, color: "var(--c-text3)", cursor: "pointer", padding: "0 2px", flexShrink: 0, marginTop: 2 }}>删</span>
                 </div>
-              ))}
-            </div>
-          </>
+              );
+            })}
+          </div>
         )}
       </div>
       <style>{globalStyle}</style>
