@@ -160,7 +160,7 @@ function BottomTabs({ active, setPage }) {
     },
   ];
   return (
-    <div style={{ display: "flex", justifyContent: "space-around", alignItems: "center", padding: "10px 0 14px", borderTop: `0.5px solid var(--c-border)`, background: "var(--c-bg)", flexShrink: 0 }}>
+    <div style={{ display: "flex", justifyContent: "space-around", alignItems: "center", padding: "10px 0 14px", borderTop: `0.5px solid rgba(255,255,255,0.4)`, background: "rgba(240,245,250,0.7)", backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)", flexShrink: 0 }}>
       {tabs.map(t => {
         const isActive = active === t.key;
         return (
@@ -487,7 +487,7 @@ function ChatPage({ setPage, avatarUrl, userAvatarUrl }) {
       <div onClick={() => setSidebarOpen(false)} style={{ position: "fixed", inset: 0, background: "rgba(60,70,85,0.18)", zIndex: 10, opacity: sidebarOpen ? 1 : 0, pointerEvents: sidebarOpen ? "auto" : "none", transition: "opacity 0.25s" }} />
 
       {/* 会话抽屉 */}
-      <div style={{ position: "fixed", left: 0, top: 0, bottom: 0, width: 265, background: "var(--c-surface)", zIndex: 20, transform: sidebarOpen ? "translateX(0)" : "translateX(-100%)", transition: "transform 0.27s cubic-bezier(0.4,0,0.2,1)", display: "flex", flexDirection: "column", borderRight: `0.5px solid var(--c-border)`, boxShadow: sidebarOpen ? "4px 0 20px rgba(104,110,122,0.10)" : "none" }}>
+      <div style={{ position: "fixed", left: 0, top: 0, bottom: 0, width: 265, background: "rgba(232,236,238,0.88)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", zIndex: 20, transform: sidebarOpen ? "translateX(0)" : "translateX(-100%)", transition: "transform 0.27s cubic-bezier(0.4,0,0.2,1)", display: "flex", flexDirection: "column", borderRight: `0.5px solid rgba(255,255,255,0.5)`, boxShadow: sidebarOpen ? "4px 0 20px rgba(104,110,122,0.10)" : "none" }}>
         <div style={{ padding: "20px 16px 12px", borderBottom: `0.5px solid var(--c-border)`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div style={{ fontFamily: "'Noto Serif SC', serif", fontSize: 15, color: "var(--c-text1)", letterSpacing: "0.06em", fontStyle: "italic" }}>Sessions</div>
           <span onClick={() => setSidebarOpen(false)} style={{ cursor: "pointer", color: "var(--c-text3)", fontSize: 20, lineHeight: 1, fontWeight: 300 }}>×</span>
@@ -553,7 +553,7 @@ function ChatPage({ setPage, avatarUrl, userAvatarUrl }) {
         </div>
         <div style={{ flex: 1 }}>
           <div style={{ fontFamily: "'DM Serif Display', 'Noto Serif SC', serif", fontSize: 14, color: "var(--c-text1)", lineHeight: 1.2, letterSpacing: "0.02em", fontStyle: "italic" }}>Echo</div>
-          <div style={{ fontSize: 10, color: "var(--c-text3)", marginTop: 1 }}>Own the moment</div>
+          <div style={{ fontSize: 10, color: "var(--c-text3)", marginTop: 1, fontStyle: "italic" }}>Own the moment</div>
         </div>
         <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
           <svg onClick={() => setPage("landing")} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--c-text3)" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" style={{ cursor: "pointer", display: "block" }}>
@@ -721,9 +721,10 @@ function MorePage({ setPage, mailbox, diaryCount, cycleDay, cycleAvgLength, remi
   ];
 
   return (
-    <div style={{ height: "100vh", display: "flex", flexDirection: "column", background: "var(--c-bg)", fontFamily: FONT }}>
+    <div style={{ height: "100vh", display: "flex", flexDirection: "column", fontFamily: FONT,
+      background: "radial-gradient(ellipse at 20% 20%, #ffffff 0%, transparent 50%), radial-gradient(ellipse at 80% 60%, #b8cfe8 0%, transparent 45%), radial-gradient(ellipse at 40% 80%, #c8d8ec 0%, transparent 50%), #dde8f4" }}>
 
-      <div style={{ padding: "13px 18px", borderBottom: `0.5px solid var(--c-border)`, display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
+      <div style={{ padding: "13px 18px", borderBottom: `0.5px solid rgba(255,255,255,0.5)`, display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0, background: "rgba(255,255,255,0.3)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)" }}>
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--c-text3)" strokeWidth="1.6" strokeLinecap="round">
           <line x1="3" y1="7" x2="21" y2="7"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="17" x2="21" y2="17"/>
         </svg>
@@ -734,10 +735,10 @@ function MorePage({ setPage, mailbox, diaryCount, cycleDay, cycleAvgLength, remi
       <div style={{ flex: 1, overflowY: "auto" }}>
 
         <div style={{ padding: "22px 20px 16px", position: "relative", overflow: "hidden" }}>
-          <span style={{ position: "absolute", left: 14, top: 6, fontFamily: "'Noto Serif SC', serif", fontSize: 68, color: "var(--c-border)", fontWeight: 400, lineHeight: 1, userSelect: "none", pointerEvents: "none" }}>{dayNum}</span>
+          <span style={{ position: "absolute", left: 14, top: 6, fontFamily: "'Noto Serif SC', serif", fontSize: 68, color: "rgba(255,255,255,0.5)", fontWeight: 400, lineHeight: 1, userSelect: "none", pointerEvents: "none" }}>{dayNum}</span>
           <div style={{ position: "relative" }}>
             <div style={{ fontSize: 9, color: "var(--c-text3)", letterSpacing: "0.1em", marginBottom: 4 }}>{greeting}</div>
-            <div style={{ fontFamily: "'Noto Serif SC', serif", fontSize: 40, color: "var(--c-text1)", fontWeight: 400, lineHeight: 1, letterSpacing: "0.02em" }}>{timeStr}</div>
+            <div style={{ fontFamily: "'Noto Serif SC', serif", fontSize: 40, color: "#2a3a4a", fontWeight: 400, lineHeight: 1, letterSpacing: "0.02em" }}>{timeStr}</div>
             <div style={{ fontSize: 10, color: "var(--c-text3)", marginTop: 6, fontStyle: "italic" }}>{dateStr} · {weekStr}</div>
           </div>
         </div>
@@ -746,16 +747,16 @@ function MorePage({ setPage, mailbox, diaryCount, cycleDay, cycleAvgLength, remi
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, padding: "0 16px 10px" }}>
           {topCards.map(c => (
             <div key={c.key} onClick={() => setPage(c.key)}
-              style={{ background: c.dark ? "var(--c-text1)" : "var(--c-surface)", borderRadius: 14, padding: "15px 14px", cursor: "pointer" }}>
-              <div style={{ fontSize: 12, color: c.dark ? "var(--c-bg)" : "var(--c-text1)", marginBottom: 6 }}>{c.label}</div>
-              <div style={{ fontSize: 9.5, color: c.dark ? "var(--c-accent)" : "var(--c-text3)" }}>{c.sub}</div>
+              style={{ background: c.dark ? "rgba(45,58,75,0.8)" : "rgba(255,255,255,0.45)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", borderRadius: 14, padding: "15px 14px", cursor: "pointer", border: "0.5px solid rgba(255,255,255,0.7)" }}>
+              <div style={{ fontSize: 12, color: c.dark ? "rgba(255,255,255,0.9)" : "#2a3a4a", marginBottom: 6 }}>{c.label}</div>
+              <div style={{ fontSize: 9.5, color: c.dark ? "rgba(255,255,255,0.5)" : "#7a9ab8" }}>{c.sub}</div>
             </div>
           ))}
         </div>
 
         {/* 状态全宽卡片 */}
         <div style={{ padding: "0 16px 14px" }}>
-          <div onClick={() => setPage("status")} style={{ background: "var(--c-surface)", borderRadius: 14, padding: "15px 14px", cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div onClick={() => setPage("status")} style={{ background: "rgba(255,255,255,0.45)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", borderRadius: 14, padding: "15px 14px", cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center", border: "0.5px solid rgba(255,255,255,0.7)" }}>
             <div>
               <div style={{ fontSize: 12, color: "var(--c-text1)", marginBottom: 6 }}>状态</div>
               <div style={{ fontSize: 9.5, color: "var(--c-text3)" }}>此刻的驱动</div>
@@ -767,22 +768,22 @@ function MorePage({ setPage, mailbox, diaryCount, cycleDay, cycleAvgLength, remi
         {/* 胶囊info */}
         <div style={{ padding: "0 16px 18px", display: "flex", gap: 8, flexWrap: "wrap" }}>
           {daysLeft !== null && (
-            <span style={{ display: "inline-flex", alignItems: "center", gap: 6, border: `0.5px solid var(--c-border)`, borderRadius: 20, padding: "6px 14px", fontSize: 11, color: "var(--c-text2)", background: "var(--c-bg)" }}>
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 6, border: "0.5px solid rgba(255,255,255,0.7)", borderRadius: 20, padding: "6px 14px", fontSize: 11, color: "#5a7090", background: "rgba(255,255,255,0.45)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)" }}>
               <span style={{ fontSize: 9.5, color: "var(--c-text3)" }}>周期</span>预计 {daysLeft} 天后
             </span>
           )}
           {diaryCount > 0 && (
-            <span style={{ display: "inline-flex", alignItems: "center", gap: 6, border: `0.5px solid var(--c-border)`, borderRadius: 20, padding: "6px 14px", fontSize: 11, color: "var(--c-text2)", background: "var(--c-bg)" }}>
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 6, border: "0.5px solid rgba(255,255,255,0.7)", borderRadius: 20, padding: "6px 14px", fontSize: 11, color: "#5a7090", background: "rgba(255,255,255,0.45)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)" }}>
               <span style={{ fontSize: 9.5, color: "var(--c-text3)" }}>日记</span>共 {diaryCount} 篇
             </span>
           )}
           {pendingReminders > 0 && (
-            <span onClick={() => setPage("reminder")} style={{ display: "inline-flex", alignItems: "center", gap: 6, border: `0.5px solid var(--c-border)`, borderRadius: 20, padding: "6px 14px", fontSize: 11, color: "var(--c-text2)", background: "var(--c-bg)", cursor: "pointer" }}>
+            <span onClick={() => setPage("reminder")} style={{ display: "inline-flex", alignItems: "center", gap: 6, border: "0.5px solid rgba(255,255,255,0.7)", borderRadius: 20, padding: "6px 14px", fontSize: 11, color: "#5a7090", background: "rgba(255,255,255,0.45)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", cursor: "pointer" }}>
               <span style={{ fontSize: 9.5, color: "var(--c-text3)" }}>日程</span>{pendingReminders} 件待处理
             </span>
           )}
           {unread > 0 && (
-            <span onClick={() => setPage("mailboxFull")} style={{ display: "inline-flex", alignItems: "center", gap: 6, border: `0.5px solid var(--c-border)`, borderRadius: 20, padding: "6px 14px", fontSize: 11, color: "var(--c-text2)", background: "var(--c-bg)", cursor: "pointer" }}>
+            <span onClick={() => setPage("mailboxFull")} style={{ display: "inline-flex", alignItems: "center", gap: 6, border: "0.5px solid rgba(255,255,255,0.7)", borderRadius: 20, padding: "6px 14px", fontSize: 11, color: "#5a7090", background: "rgba(255,255,255,0.45)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", cursor: "pointer" }}>
               <span style={{ fontSize: 9.5, color: "var(--c-text3)" }}>留言</span>{unread} 条未读
             </span>
           )}
@@ -1592,33 +1593,34 @@ function SettingsHubPage({ setPage, theme, setTheme }) {
     { key: "data", label: "数据", sub: "导出聊天记录、清空" },
   ];
   return (
-    <div style={{ height: "100vh", display: "flex", flexDirection: "column", background: "var(--c-bg)", fontFamily: FONT }}>
-      <div style={{ padding: "14px 16px", borderBottom: `0.5px solid var(--c-border)`, textAlign: "center", flexShrink: 0 }}>
-        <span style={{ fontSize: 11.5, color: "var(--c-text2)", letterSpacing: "0.06em" }}>设置</span>
+    <div style={{ height: "100vh", display: "flex", flexDirection: "column", fontFamily: FONT,
+      background: "radial-gradient(ellipse at 20% 20%, #ffffff 0%, transparent 50%), radial-gradient(ellipse at 80% 60%, #b8cfe8 0%, transparent 45%), radial-gradient(ellipse at 40% 80%, #c8d8ec 0%, transparent 50%), #dde8f4" }}>
+      <div style={{ padding: "14px 16px", borderBottom: `0.5px solid rgba(255,255,255,0.5)`, textAlign: "center", flexShrink: 0, background: "rgba(255,255,255,0.3)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)" }}>
+        <span style={{ fontSize: 11.5, color: "#5a7090", letterSpacing: "0.06em" }}>设置</span>
       </div>
 
       <div style={{ flex: 1, overflowY: "auto", padding: 18 }}>
-        <div style={{ background: "var(--c-surface)", borderRadius: 14, padding: "14px 16px" }}>
-          <div style={{ fontSize: 9.5, color: "var(--c-text3)", marginBottom: 6 }}>当前模型</div>
+        <div style={{ background: "rgba(255,255,255,0.55)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", borderRadius: 16, padding: "14px 16px", border: "0.5px solid rgba(255,255,255,0.8)" }}>
+          <div style={{ fontSize: 9.5, color: "#7a9ab8", marginBottom: 6 }}>当前模型</div>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <span style={{ fontSize: 14, color: "var(--c-text1)" }}>DeepSeek</span>
+            <span style={{ fontSize: 14, color: "#2a3a4a" }}>DeepSeek</span>
             <span style={{ fontSize: 10, color: "var(--c-good)" }}>● 已连接</span>
           </div>
         </div>
 
-        <div style={{ marginTop: 18, display: "flex", flexDirection: "column" }}>
+        <div style={{ marginTop: 14, background: "rgba(255,255,255,0.45)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", borderRadius: 16, border: "0.5px solid rgba(255,255,255,0.7)", overflow: "hidden" }}>
           {rows.map(r => (
-            <div key={r.key} onClick={() => setPage(r.key)} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "13px 4px", borderBottom: `0.5px solid var(--c-border)`, cursor: "pointer" }}>
+            <div key={r.key} onClick={() => setPage(r.key)} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "13px 16px", borderBottom: `0.5px solid rgba(200,215,230,0.4)`, cursor: "pointer" }}>
               <div>
-                <div style={{ fontSize: 12.5, color: "var(--c-text1)" }}>{r.label}</div>
-                <div style={{ fontSize: 10, color: "var(--c-text3)", marginTop: 3 }}>{r.sub}</div>
+                <div style={{ fontSize: 12.5, color: "#2a3a4a" }}>{r.label}</div>
+                <div style={{ fontSize: 10, color: "#7a9ab8", marginTop: 3 }}>{r.sub}</div>
               </div>
-              <span style={{ fontSize: 13, color: "var(--c-text3)" }}>›</span>
+              <span style={{ fontSize: 13, color: "#9ab8d0" }}>›</span>
             </div>
           ))}
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "13px 4px" }}>
-            <span style={{ fontSize: 12.5, color: "var(--c-text1)" }}>外观</span>
-            <span onClick={() => setTheme(theme === "日间" ? "夜间" : "日间")} style={{ fontSize: 10, color: "var(--c-text2)", border: `0.5px solid var(--c-border)`, borderRadius: 12, padding: "3px 10px", cursor: "pointer" }}>{theme}</span>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "13px 16px" }}>
+            <span style={{ fontSize: 12.5, color: "#2a3a4a" }}>外观</span>
+            <span onClick={() => setTheme(theme === "日间" ? "夜间" : "日间")} style={{ fontSize: 10, color: "#5a7090", border: `0.5px solid rgba(200,215,230,0.6)`, borderRadius: 12, padding: "3px 10px", cursor: "pointer", background: "rgba(255,255,255,0.5)" }}>{theme}</span>
           </div>
         </div>
       </div>
