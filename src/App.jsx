@@ -122,6 +122,15 @@ function IconSettings({ size = 18, color, onClick }) {
 function BottomTabs({ active, setPage }) {
   const tabs = [
     {
+      key: "landing",
+      icon: (color) => (
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V9.5z" />
+          <path d="M9 21V12h6v9" />
+        </svg>
+      ),
+    },
+    {
       key: "chat",
       icon: (color) => (
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
@@ -155,7 +164,7 @@ function BottomTabs({ active, setPage }) {
       {tabs.map(t => {
         const isActive = active === t.key;
         return (
-          <span key={t.key} onClick={() => setPage(t.key)} style={{ cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: "4px 20px", opacity: isActive ? 1 : 0.45, transition: "opacity 0.2s" }}>
+          <span key={t.key} onClick={() => setPage(t.key)} style={{ cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: "4px 14px", opacity: isActive ? 1 : 0.45, transition: "opacity 0.2s" }}>
             {t.icon(isActive ? C.accent : "var(--c-text2)")}
           </span>
         );
@@ -541,6 +550,10 @@ function ChatPage({ setPage, avatarUrl, userAvatarUrl }) {
           <div style={{ fontSize: 10, color: "var(--c-text3)", marginTop: 1 }}>Own the moment</div>
         </div>
         <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
+          <svg onClick={() => setPage("landing")} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--c-text3)" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" style={{ cursor: "pointer", display: "block" }}>
+            <path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V9.5z" />
+            <path d="M9 21V12h6v9" />
+          </svg>
           <IconSearch size={18} color="var(--c-text3)" onClick={() => setPage("search")} />
           <IconGrid size={17} color="var(--c-text3)" onClick={() => setPage("more")} />
           <IconSettings size={18} color="var(--c-text3)" onClick={() => setPage("settingsHub")} />
