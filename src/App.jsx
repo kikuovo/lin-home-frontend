@@ -17,7 +17,7 @@ const THEMES = {
     bubbleText: "#2a2a2a",
     good: "#7faa9e",
     warn: "#a08fb0",
-    aiBubble: "#FAFCFF",
+    aiBubble: "linear-gradient(145deg, #e8eef6, #f5f7fc)",
     aiText: "#3d4451",
   },
   夜间: {
@@ -33,7 +33,7 @@ const THEMES = {
     bubbleText: "#3a1a1e",
     good: "#7faa9e",
     warn: "#c49ab0",
-    aiBubble: "#FFDDE1",
+    aiBubble: "linear-gradient(145deg, #f5e8ec, #fdf3f5)",
     aiText: "#3a1a1e",
   },
 };
