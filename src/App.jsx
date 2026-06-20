@@ -1381,7 +1381,7 @@ function MailboxPage({ setPage, mailbox, setMailbox }) {
         <span onClick={markAllRead} style={{ fontSize: 10, color: "#EE9CA7", cursor: "pointer" }}>全部已读</span>
       </div>
 
-      <div style={{ flex: 1, overflowY: "auto", WebkitOverflowScrolling: "touch", padding: "16px 14px", display: "flex", flexDirection: "column", gap: 14 }}>
+      <div style={{ flex: 1, minHeight: 0, overflowY: "auto", WebkitOverflowScrolling: "touch", padding: "16px 14px", display: "flex", flexDirection: "column", gap: 14 }}>
         {(mailbox || []).length === 0 ? (
           <div style={{ textAlign: "center", fontSize: 12, color: "#F4B6BE", padding: "50px 0" }}>暂时没有留言</div>
         ) : (mailbox || []).map((m, i) => {
