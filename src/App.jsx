@@ -217,7 +217,7 @@ function MessageItem({ msg }) {
   }
 
   const segments = (msg.content || "")
-    .split(/\n\s*\n+/)
+    .split(/\n/)
     .map(s => s.trim())
     .filter(Boolean);
 
