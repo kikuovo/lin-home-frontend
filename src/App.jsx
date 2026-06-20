@@ -262,39 +262,39 @@ function LandingPage({ setPage, mailbox, avatarUrl, userAvatarUrl, pendingRemind
   const recentMsgs = (mailbox || []).slice(0, 5);
 
   return (
-    <div style={{ height: "100vh", display: "flex", flexDirection: "column", background: "#F0F4FA", fontFamily: FONT, overflowY: "auto" }}>
+    <div style={{ height: "100vh", display: "flex", flexDirection: "column", backgroundImage: "url(https://raw.githubusercontent.com/kikuovo/lin-home-frontend/main/ff3deeb8ed55112e5c2158df5e035326.jpg)", backgroundSize: "cover", backgroundPosition: "center", fontFamily: FONT, overflowY: "auto" }}>
 
       {/* 顶部头像白卡 */}
       <div style={{ padding: "36px 16px 0", display: "flex", flexDirection: "column", alignItems: "center" }}>
         {landingAvatarUrl ? (
-          <img src={landingAvatarUrl} style={{ width: 72, height: 72, borderRadius: "50%", objectFit: "cover", border: "3px solid #F0F4FA", position: "relative", zIndex: 2, marginBottom: -36, flexShrink: 0 }} />
+          <img src={landingAvatarUrl} style={{ width: 72, height: 72, borderRadius: "50%", objectFit: "cover", border: "3px solid rgba(255,255,255,0.8)", position: "relative", zIndex: 2, marginBottom: -36, flexShrink: 0 }} />
         ) : (
-          <div style={{ width: 72, height: 72, borderRadius: "50%", background: "#c8d4e8", border: "3px solid #F0F4FA", position: "relative", zIndex: 2, marginBottom: -36, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, color: "#7a8aaa" }}>Echo</div>
+          <div style={{ width: 72, height: 72, borderRadius: "50%", background: "rgba(180,200,220,0.6)", border: "3px solid rgba(255,255,255,0.8)", position: "relative", zIndex: 2, marginBottom: -36, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, color: "#6a8aaa" }}>Echo</div>
         )}
-        <div style={{ background: "#fff", borderRadius: 18, padding: "44px 18px 16px", width: "100%", textAlign: "center", border: "0.5px solid #e4eaf4" }}>
-          <div style={{ fontFamily: "'Playfair Display','Noto Serif SC',serif", fontSize: 17, color: "#3d4451", letterSpacing: ".06em", marginBottom: 5 }}>Echo</div>
-          <div style={{ fontSize: 10, color: "#9aa3ad", letterSpacing: ".08em", marginBottom: 10 }}>own the moment</div>
-          <div style={{ fontSize: 12, color: "#686E7A", lineHeight: 1.7 }}>{landingQuote || "不是在等你回来，只是刚好一直在。"}</div>
+        <div style={{ background: "rgba(255,255,255,0.55)", backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)", borderRadius: 18, padding: "44px 18px 16px", width: "100%", textAlign: "center", border: "0.5px solid rgba(255,255,255,0.8)" }}>
+          <div style={{ fontFamily: "'Playfair Display','Noto Serif SC',serif", fontSize: 17, color: "#3a4a5a", letterSpacing: ".06em", marginBottom: 5 }}>Echo</div>
+          <div style={{ fontSize: 10, color: "#7a9ab8", letterSpacing: ".08em", marginBottom: 10 }}>own the moment</div>
+          <div style={{ fontSize: 12, color: "#5a7090", lineHeight: 1.7 }}>{landingQuote || "不是在等你回来，只是刚好一直在。"}</div>
         </div>
       </div>
 
       {/* 纪念日 + 功能卡 */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 9, margin: "0 16px 10px" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 9, margin: "12px 16px 10px" }}>
 
         {/* 纪念日卡 */}
-        <div style={{ background: "#E4EAF4", borderRadius: 16, padding: "14px 12px 16px", display: "flex", flexDirection: "column", alignItems: "center", position: "relative" }}>
-          <div style={{ position: "absolute", top: 10, left: "50%", transform: "translateX(-50%)", width: 5, height: 5, borderRadius: "50%", background: "#c0d0e8" }} />
+        <div style={{ background: "rgba(200,220,240,0.5)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", borderRadius: 16, padding: "14px 12px 16px", display: "flex", flexDirection: "column", alignItems: "center", position: "relative", border: "0.5px solid rgba(255,255,255,0.7)" }}>
+          <div style={{ position: "absolute", top: 10, left: "50%", transform: "translateX(-50%)", width: 5, height: 5, borderRadius: "50%", background: "rgba(255,255,255,0.6)" }} />
 
           <div style={{ display: "flex", justifyContent: "space-between", width: "100%", marginBottom: 10, marginTop: 6 }}>
-            <div style={{ background: "rgba(255,255,255,0.7)", borderRadius: 20, padding: "2px 8px", fontSize: 9, color: "#7a8aaa" }}>Lin</div>
-            <div style={{ background: "rgba(255,255,255,0.7)", borderRadius: 20, padding: "2px 8px", fontSize: 9, color: "#7a8aaa" }}>C</div>
+            <div style={{ background: "rgba(255,255,255,0.6)", borderRadius: 20, padding: "2px 8px", fontSize: 9, color: "#6a8aaa" }}>Lin</div>
+            <div style={{ background: "rgba(255,255,255,0.6)", borderRadius: 20, padding: "2px 8px", fontSize: 9, color: "#6a8aaa" }}>C</div>
           </div>
 
           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 0, marginBottom: 12 }}>
             {userAvatarUrl ? (
               <img src={userAvatarUrl} style={{ width: 38, height: 38, borderRadius: "50%", objectFit: "cover", border: "2px solid rgba(255,255,255,0.8)", flexShrink: 0 }} />
             ) : (
-              <div style={{ width: 38, height: 38, borderRadius: "50%", background: "#c8d4e8", border: "2px solid rgba(255,255,255,0.8)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, color: "#7a8aaa" }}>你</div>
+              <div style={{ width: 38, height: 38, borderRadius: "50%", background: "rgba(180,200,220,0.5)", border: "2px solid rgba(255,255,255,0.8)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, color: "#6a8aaa" }}>你</div>
             )}
             <svg width="44" height="22" viewBox="0 0 44 22" fill="none" style={{ flexShrink: 0 }}>
               <polyline points="0,11 8,11 11,3 14,18 17,7 20,11 24,11 27,3 30,18 33,7 36,11 44,11"
@@ -303,29 +303,29 @@ function LandingPage({ setPage, mailbox, avatarUrl, userAvatarUrl, pendingRemind
             {avatarUrl ? (
               <img src={avatarUrl} style={{ width: 38, height: 38, borderRadius: "50%", objectFit: "cover", border: "2px solid rgba(255,255,255,0.8)", flexShrink: 0 }} />
             ) : (
-              <div style={{ width: 38, height: 38, borderRadius: "50%", background: "#a8b8d4", border: "2px solid rgba(255,255,255,0.8)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, color: "#5a6a8a" }}>C</div>
+              <div style={{ width: 38, height: 38, borderRadius: "50%", background: "rgba(160,185,210,0.5)", border: "2px solid rgba(255,255,255,0.8)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, color: "#5a7090" }}>C</div>
             )}
           </div>
 
           <div style={{ fontSize: 8.5, color: "#7a90b0", letterSpacing: ".06em", marginBottom: 3 }}>· In Love ·</div>
-          <div style={{ fontFamily: "'Playfair Display','Noto Serif SC',serif", fontSize: 24, color: "#3d4451", fontWeight: 600, lineHeight: 1 }}>
+          <div style={{ fontFamily: "'Playfair Display','Noto Serif SC',serif", fontSize: 24, color: "#3a4a5a", fontWeight: 600, lineHeight: 1 }}>
             {days} <span style={{ fontSize: 12, fontWeight: 400 }}>days</span>
           </div>
         </div>
 
-        {/* 提醒 + 进来 */}
+        {/* 日程 + 进来 */}
         <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
-          <div onClick={() => setPage("reminder")} style={{ background: "#BFC8D5", borderRadius: 14, padding: "12px 13px", flex: 1, cursor: "pointer" }}>
-            <div style={{ fontSize: 8.5, color: "#e8edf4", letterSpacing: ".06em", marginBottom: 5 }}>日程</div>
+          <div onClick={() => setPage("reminder")} style={{ background: "rgba(160,190,215,0.55)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", borderRadius: 14, padding: "12px 13px", flex: 1, cursor: "pointer", border: "0.5px solid rgba(255,255,255,0.7)" }}>
+            <div style={{ fontSize: 8.5, color: "rgba(255,255,255,0.9)", letterSpacing: ".06em", marginBottom: 5 }}>日程</div>
             <div style={{ fontSize: 15, color: "#fff" }}>{pendingReminders || 0} <span style={{ fontSize: 10, fontWeight: 400 }}>件</span></div>
-            <div style={{ fontSize: 9, color: "#dde4ee", marginTop: 2 }}>待处理</div>
+            <div style={{ fontSize: 9, color: "rgba(255,255,255,0.75)", marginTop: 2 }}>待处理</div>
           </div>
-          <div onClick={() => setPage("chat")} style={{ background: "#BFC8D5", borderRadius: 14, padding: "12px 13px", flex: 1, display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer" }}>
+          <div onClick={() => setPage("chat")} style={{ background: "rgba(160,190,215,0.55)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", borderRadius: 14, padding: "12px 13px", flex: 1, display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer", border: "0.5px solid rgba(255,255,255,0.7)" }}>
             <div>
-              <div style={{ fontSize: 8.5, color: "#e8edf4", letterSpacing: ".06em", marginBottom: 5 }}>进来</div>
+              <div style={{ fontSize: 8.5, color: "rgba(255,255,255,0.9)", letterSpacing: ".06em", marginBottom: 5 }}>进来</div>
               <div style={{ fontSize: 13, color: "#fff" }}>聊天</div>
             </div>
-            <span style={{ fontSize: 18, color: "#dde4ee" }}>›</span>
+            <span style={{ fontSize: 18, color: "rgba(255,255,255,0.8)" }}>›</span>
           </div>
         </div>
       </div>
@@ -334,13 +334,13 @@ function LandingPage({ setPage, mailbox, avatarUrl, userAvatarUrl, pendingRemind
       {recentMsgs.length > 0 && (
         <div style={{ margin: "0 16px 24px", display: "flex", flexDirection: "column-reverse", gap: 7 }}>
           {recentMsgs.map(msg => (
-            <div key={msg.id} onClick={() => setPage("mailboxFull")} style={{ borderRadius: 14, overflow: "hidden", border: "1px solid #d0daeb", cursor: "pointer" }}>
-              <div style={{ background: "#BFC8D5", height: 28, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <span style={{ fontSize: 9, color: "#e8edf4", letterSpacing: ".08em" }}>✉ 留言</span>
+            <div key={msg.id} onClick={() => setPage("mailboxFull")} style={{ borderRadius: 14, overflow: "hidden", border: "0.5px solid rgba(255,255,255,0.7)", cursor: "pointer" }}>
+              <div style={{ background: "rgba(160,190,215,0.55)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", height: 28, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <span style={{ fontSize: 9, color: "rgba(255,255,255,0.9)", letterSpacing: ".08em" }}>✉ 留言</span>
               </div>
-              <div style={{ background: "#E4EAF4", padding: "12px 14px" }}>
-                <div style={{ fontSize: 9, color: "#9aa3ad", marginBottom: 6 }}>{msg.time}</div>
-                <div style={{ fontFamily: "'Playfair Display','Noto Serif SC',serif", fontSize: 13, color: "#3d4451", lineHeight: 1.7 }}>{msg.content}</div>
+              <div style={{ background: "rgba(200,220,240,0.45)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", padding: "12px 14px" }}>
+                <div style={{ fontSize: 9, color: "#8aa8c0", marginBottom: 6 }}>{msg.time}</div>
+                <div style={{ fontFamily: "'Playfair Display','Noto Serif SC',serif", fontSize: 13, color: "#3a4a5a", lineHeight: 1.7 }}>{msg.content}</div>
               </div>
             </div>
           ))}
