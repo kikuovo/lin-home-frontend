@@ -16,26 +16,30 @@ const THEMES = {
     bubble: "#5b6472",
     good: "#7faa9e",
     warn: "#a08fb0",
+    aiBubble: "#FAFCFF",
+    aiText: "#3d4451",
   },
   夜间: {
-    bg: "#1b1e26",
-    surface: "#22262f",
-    border: "#2e3340",
-    muted: "#3a4050",
-    accent: "#8b9dc3",
-    text1: "#e2e6ed",
-    text2: "#a0a8b4",
-    text3: "#5e6672",
-    bubble: "#8b9dc3",
+    bg: "#141414",
+    surface: "#1a1a1a",
+    border: "#2a2a2a",
+    muted: "#333333",
+    accent: "#F4B6BE",
+    text1: "#f0f0f0",
+    text2: "#aaaaaa",
+    text3: "#555555",
+    bubble: "#F4B6BE",
     good: "#7faa9e",
-    warn: "#a08fb0",
+    warn: "#c49ab0",
+    aiBubble: "#FFDDE1",
+    aiText: "#3a1a1e",
   },
 };
 
 function applyTheme(name) {
   const t = THEMES[name] || THEMES["日间"];
   const root = document.documentElement;
-  Object.entries(t).forEach(([k, v]) => root.style.setProperty(`--c-${k}`, v));
+  Object.entries(t).forEach(([k, v]) => root.style.setProperty(`--c-${k.replace(/([A-Z])/g, '-$1').toLowerCase()}`, v));
 }
 
 // C仍然保留作为初始化用（SVG icon里会传color prop，需要一个初始值）
@@ -51,7 +55,7 @@ const DRIVE_COLORS = {
 };
 
 const globalStyle = `
-  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400&family=Noto+Sans+SC:wght@300;400;500&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Noto+Serif+SC:wght@400&family=Noto+Sans+SC:wght@300;400;500&family=Playfair+Display:wght@400&display=swap');
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { overflow: hidden; }
   ::-webkit-scrollbar { width: 3px; }
@@ -70,6 +74,8 @@ const globalStyle = `
     --c-bubble: #5b6472;
     --c-good: #7faa9e;
     --c-warn: #a08fb0;
+    --c-ai-bubble: #FAFCFF;
+    --c-ai-text: #3d4451;
   }
 `;
 
@@ -223,8 +229,8 @@ function MessageItem({ msg }) {
         {segments.map((seg, i) => (
           <div key={i}>
             <div style={{
-              display: "inline-block", background: "var(--c-bg)", borderRadius: 12,
-              padding: "8px 13px", fontSize: 13.5, color: "var(--c-text1)", lineHeight: 1.6,
+              display: "inline-block", background: "var(--c-ai-bubble)", borderRadius: 12,
+              padding: "8px 13px", fontSize: 13.5, color: "var(--c-ai-text)", lineHeight: 1.6,
               whiteSpace: "pre-wrap", wordBreak: "break-word"
             }}>
               {seg}
@@ -526,7 +532,7 @@ function ChatPage({ setPage, avatarUrl, userAvatarUrl }) {
           )}
         </div>
         <div style={{ flex: 1 }}>
-          <div style={{ fontFamily: "'Playfair Display', 'Noto Serif SC', serif", fontSize: 14, color: "var(--c-text1)", lineHeight: 1.2, letterSpacing: "0.02em" }}>Echo</div>
+          <div style={{ fontFamily: "'DM Serif Display', 'Noto Serif SC', serif", fontSize: 14, color: "var(--c-text1)", lineHeight: 1.2, letterSpacing: "0.02em" }}>Echo</div>
           <div style={{ fontSize: 10, color: "var(--c-text3)", marginTop: 1 }}>在你身边</div>
         </div>
         <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
@@ -575,7 +581,7 @@ function ChatPage({ setPage, avatarUrl, userAvatarUrl }) {
           <span onClick={() => fileInputRef.current?.click()}
             style={{ width: 36, height: 36, borderRadius: "50%", border: `0.5px solid var(--c-border)`, color: "var(--c-text3)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, flexShrink: 0, cursor: "pointer" }}>＋</span>
           <textarea value={input} onChange={e => setInput(e.target.value)} onKeyDown={handleKeyDown}
-            placeholder="say something to daddy..."
+            placeholder="Claude is listening…"
             rows={1}
             style={{ flex: 1, border: `0.5px solid var(--c-border)`, borderRadius: 12, padding: "9px 12px", fontSize: 16, fontFamily: "inherit", resize: "none", outline: "none", background: "var(--c-surface)", color: "var(--c-text1)", lineHeight: 1.4, minHeight: 40, maxHeight: 120 }}
             onFocus={e => e.target.style.borderColor = 'var(--c-accent)'}
@@ -1353,38 +1359,55 @@ function CyclePage({ setPage, cycleData, setCycleData }) {
   );
 }
 
-// ── MailboxPage（留言全列表） ───────────────────────────────────
+// ── MailboxPage ───────────────────────────────────────────────
 function MailboxPage({ setPage, mailbox, setMailbox }) {
   const markAllRead = async () => {
     setMailbox(prev => prev.map(m => ({ ...m, read: true })));
     try { await fetch(`${API_BASE}/mailbox/read-all`, { method: "PATCH" }); } catch {}
   };
+
+  const unreadCount = (mailbox || []).filter(m => !m.read).length;
+
+  // 未读深一点，已读浅一点
+  const envelopeColors = ["#EE9CA7", "#F1A9B2", "#F4B6BE", "#F8C3C9"];
+  const getColor = (i) => envelopeColors[Math.min(i, envelopeColors.length - 1)];
+
   return (
-    <div style={{ height: "100vh", display: "flex", flexDirection: "column", background: "var(--c-bg)", fontFamily: FONT }}>
-      <div style={{ padding: "14px 16px", borderBottom: `0.5px solid var(--c-border)`, display: "flex", alignItems: "center", gap: 14 }}>
+    <div style={{ height: "100vh", display: "flex", flexDirection: "column", background: "#FFF8F8", fontFamily: FONT }}>
+      <div style={{ padding: "12px 16px", borderBottom: `0.5px solid #FBD0D5`, display: "flex", alignItems: "center", gap: 12, flexShrink: 0 }}>
         <BackChevron onClick={() => setPage("more")} />
-        <span style={{ fontSize: 12.5, color: "var(--c-text2)", letterSpacing: "0.04em" }}>留言</span>
-        <span style={{ fontSize: 10, color: "var(--c-text3)" }}>{mailbox.length}条</span>
-        <span style={{ flex: 1 }} />
-        <span onClick={markAllRead} style={{ fontSize: 10.5, color: "var(--c-accent)", cursor: "pointer" }}>全部已读</span>
+        <span style={{ flex: 1, fontSize: 11.5, color: "#c47080", letterSpacing: "0.04em" }}>留言</span>
+        {unreadCount > 0 && <span style={{ fontSize: 10, color: "#F4B6BE" }}>{unreadCount} 条未读</span>}
+        <span onClick={markAllRead} style={{ fontSize: 10, color: "#EE9CA7", cursor: "pointer" }}>全部已读</span>
       </div>
-      <div style={{ flex: 1, overflowY: "auto", padding: "22px 18px", display: "flex", flexDirection: "column", gap: 16 }}>
-        {mailbox.length === 0 ? (
-          <div style={{ textAlign: "center", fontSize: 12, color: "var(--c-text3)", padding: "30px 0" }}>暂时没有留言</div>
-        ) : mailbox.map((m, i) => (
-          <div key={m.id}>
-            <div onClick={() => setPage("chat")} style={{ display: "flex", gap: 9, alignItems: "flex-start", cursor: "pointer" }}>
-              <span style={{ width: 6, height: 6, borderRadius: "50%", background: m.read ? C.muted : "var(--c-accent)", marginTop: 6, flexShrink: 0 }} />
-              <div>
-                <div style={{ fontSize: 13, color: "var(--c-text1)", lineHeight: 1.75 }}>{m.content}</div>
-                <div style={{ fontSize: 10, color: "var(--c-text3)", marginTop: 6 }}>{m.time}</div>
+
+      <div style={{ flex: 1, overflowY: "auto", padding: "16px 14px", display: "flex", flexDirection: "column", gap: 10 }}>
+        {(mailbox || []).length === 0 ? (
+          <div style={{ textAlign: "center", fontSize: 12, color: "#F4B6BE", padding: "50px 0" }}>暂时没有留言</div>
+        ) : (mailbox || []).map((m, i) => {
+          const isUnread = !m.read;
+          const envColor = isUnread ? getColor(i % 2) : "#F8C3C9";
+          return (
+            <div key={m.id} onClick={() => setPage("chat")}
+              style={{ borderRadius: 12, overflow: "hidden", border: `1px solid ${isUnread ? "#F4B6BE" : "#FBD0D5"}`, opacity: isUnread ? 1 : 0.55, cursor: "pointer" }}>
+              <div style={{ background: envColor, height: 26, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 12px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  {isUnread && <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#fff", display: "inline-block" }} />}
+                  <span style={{ fontSize: 8.5, color: "#fff", letterSpacing: ".06em" }}>✉ {isUnread ? "未读" : "已读"}</span>
+                </div>
+                <span style={{ fontSize: 9, color: isUnread ? "#fde0e4" : "#fff" }}>{m.time}</span>
+              </div>
+              <div style={{ background: isUnread ? "#FFDDE1" : "#FFF0F0", padding: "11px 13px" }}>
+                <div style={{ fontFamily: "'DM Serif Display','Noto Serif SC',serif", fontSize: 13, color: "#7a3040", lineHeight: 1.7 }}>{m.content}</div>
               </div>
             </div>
-            {i < mailbox.length - 1 && <div style={{ height: 0.5, background: "var(--c-border)", margin: "16px 6px 0" }} />}
-          </div>
-        ))}
-        <div style={{ textAlign: "center", fontSize: 10.5, color: "var(--c-text3)", marginTop: 10 }}>点一条，回到对话里接着说</div>
+          );
+        })}
+        {(mailbox || []).length > 0 && (
+          <div style={{ textAlign: "center", fontSize: 9.5, color: "#F4B6BE", marginTop: 4 }}>点一封，回到对话接着说</div>
+        )}
       </div>
+      <style>{globalStyle}</style>
     </div>
   );
 }
