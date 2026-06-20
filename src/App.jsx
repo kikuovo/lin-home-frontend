@@ -1381,15 +1381,14 @@ function MailboxPage({ setPage, mailbox, setMailbox }) {
         <span onClick={markAllRead} style={{ fontSize: 10, color: "#EE9CA7", cursor: "pointer" }}>全部已读</span>
       </div>
 
-      <div style={{ flex: 1, overflowY: "auto", padding: "16px 14px", display: "flex", flexDirection: "column", gap: 14 }}>
+      <div style={{ flex: 1, overflowY: "auto", WebkitOverflowScrolling: "touch", padding: "16px 14px", display: "flex", flexDirection: "column", gap: 14 }}>
         {(mailbox || []).length === 0 ? (
           <div style={{ textAlign: "center", fontSize: 12, color: "#F4B6BE", padding: "50px 0" }}>暂时没有留言</div>
         ) : (mailbox || []).map((m, i) => {
           const isUnread = !m.read;
           return (
-            <div key={m.id} onClick={() => setPage("chat")}
-              style={{ borderRadius: 14, overflow: "hidden", border: `1px solid #FBD0D5`, opacity: isUnread ? 1 : 0.5, cursor: "pointer" }}>
-              <div style={{ background: "#F8C3C9", height: 28, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 12px" }}>
+            <div key={m.id} style={{ borderRadius: 14, overflow: "hidden", border: `1px solid #FBD0D5`, opacity: isUnread ? 1 : 0.5 }}>
+              <div onClick={() => setPage("chat")} style={{ background: "#F8C3C9", height: 28, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 12px", cursor: "pointer" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
                   {isUnread && <span style={{ width: 4, height: 4, borderRadius: "50%", background: "#fff", display: "inline-block" }} />}
                   <span style={{ fontSize: 8.5, color: "#fff", letterSpacing: ".06em" }}>✉ {isUnread ? "未读" : "已读"}</span>
