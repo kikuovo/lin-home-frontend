@@ -255,83 +255,84 @@ function LandingPage({ setPage, mailbox, avatarUrl, userAvatarUrl, pendingRemind
   const timeStr = now.toLocaleTimeString("zh", { hour: "2-digit", minute: "2-digit", hour12: false });
   const dateStr = `${now.getFullYear()} · ${now.getMonth() + 1}月${now.getDate()}日 · 周${"日一二三四五六"[now.getDay()]}`;
   const days = Math.floor((now - ANNIVERSARY) / 86400000);
-  const latestMsg = (mailbox || []).find(m => m);
+  const recentMsgs = (mailbox || []).slice(0, 5);
 
   return (
-    <div style={{ height: "100vh", display: "flex", flexDirection: "column", background: "#F6F2F1", fontFamily: FONT, overflowY: "auto" }}>
+    <div style={{ height: "100vh", display: "flex", flexDirection: "column", background: "#F0F4FA", fontFamily: FONT, overflowY: "auto" }}>
 
       {/* 时间 */}
       <div style={{ padding: "30px 22px 20px", textAlign: "center" }}>
-        <div style={{ fontSize: 9, color: "#C9A2A2", letterSpacing: ".12em", marginBottom: 10 }}>{greeting}</div>
-        <div style={{ fontFamily: "'Playfair Display','Noto Serif SC',serif", fontSize: 58, color: "#16131F", fontWeight: 400, lineHeight: 1, letterSpacing: ".02em" }}>{timeStr}</div>
-        <div style={{ fontSize: 10, color: "#C9A2A2", marginTop: 10, letterSpacing: ".06em" }}>{dateStr}</div>
+        <div style={{ fontSize: 9, color: "#9aa3ad", letterSpacing: ".12em", marginBottom: 10 }}>{greeting}</div>
+        <div style={{ fontFamily: "'Playfair Display','Noto Serif SC',serif", fontSize: 58, color: "#3d4451", fontWeight: 400, lineHeight: 1, letterSpacing: ".02em" }}>{timeStr}</div>
+        <div style={{ fontSize: 10, color: "#9aa3ad", marginTop: 10, letterSpacing: ".06em" }}>{dateStr}</div>
       </div>
 
       {/* 纪念日 + 功能卡 */}
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 9, margin: "0 16px 10px" }}>
 
         {/* 纪念日卡 */}
-        <div style={{ background: "#F0D9E4", borderRadius: 16, padding: "14px 12px 16px", display: "flex", flexDirection: "column", alignItems: "center", position: "relative" }}>
-          {/* 装饰小点 */}
-          <div style={{ position: "absolute", top: 10, left: "50%", transform: "translateX(-50%)", width: 5, height: 5, borderRadius: "50%", background: "#e8b4c0" }} />
+        <div style={{ background: "#E4EAF4", borderRadius: 16, padding: "14px 12px 16px", display: "flex", flexDirection: "column", alignItems: "center", position: "relative" }}>
+          <div style={{ position: "absolute", top: 10, left: "50%", transform: "translateX(-50%)", width: 5, height: 5, borderRadius: "50%", background: "#c0d0e8" }} />
 
-          {/* 名字标签 */}
           <div style={{ display: "flex", justifyContent: "space-between", width: "100%", marginBottom: 10, marginTop: 6 }}>
-            <div style={{ background: "rgba(255,255,255,0.6)", borderRadius: 20, padding: "2px 8px", fontSize: 9, color: "#9a7080" }}>Lin</div>
-            <div style={{ background: "rgba(255,255,255,0.6)", borderRadius: 20, padding: "2px 8px", fontSize: 9, color: "#9a7080" }}>C</div>
+            <div style={{ background: "rgba(255,255,255,0.7)", borderRadius: 20, padding: "2px 8px", fontSize: 9, color: "#7a8aaa" }}>Lin</div>
+            <div style={{ background: "rgba(255,255,255,0.7)", borderRadius: 20, padding: "2px 8px", fontSize: 9, color: "#7a8aaa" }}>C</div>
           </div>
 
-          {/* 双头像 + 心跳线 */}
           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 0, marginBottom: 12 }}>
             {userAvatarUrl ? (
               <img src={userAvatarUrl} style={{ width: 38, height: 38, borderRadius: "50%", objectFit: "cover", border: "2px solid rgba(255,255,255,0.8)", flexShrink: 0 }} />
             ) : (
-              <div style={{ width: 38, height: 38, borderRadius: "50%", background: "#e0c0d0", border: "2px solid rgba(255,255,255,0.8)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, color: "#9a7080" }}>你</div>
+              <div style={{ width: 38, height: 38, borderRadius: "50%", background: "#c8d4e8", border: "2px solid rgba(255,255,255,0.8)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, color: "#7a8aaa" }}>你</div>
             )}
             <svg width="44" height="22" viewBox="0 0 44 22" fill="none" style={{ flexShrink: 0 }}>
               <polyline points="0,11 8,11 11,3 14,18 17,7 20,11 24,11 27,3 30,18 33,7 36,11 44,11"
-                stroke="#d4a0b4" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+                stroke="#8aaad0" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
             </svg>
             {avatarUrl ? (
               <img src={avatarUrl} style={{ width: 38, height: 38, borderRadius: "50%", objectFit: "cover", border: "2px solid rgba(255,255,255,0.8)", flexShrink: 0 }} />
             ) : (
-              <div style={{ width: 38, height: 38, borderRadius: "50%", background: "#d4b0c4", border: "2px solid rgba(255,255,255,0.8)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, color: "#7a5060" }}>C</div>
+              <div style={{ width: 38, height: 38, borderRadius: "50%", background: "#a8b8d4", border: "2px solid rgba(255,255,255,0.8)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, color: "#5a6a8a" }}>C</div>
             )}
           </div>
 
-          <div style={{ fontSize: 8.5, color: "#b890a0", letterSpacing: ".06em", marginBottom: 3 }}>· In Love ·</div>
-          <div style={{ fontFamily: "'Playfair Display','Noto Serif SC',serif", fontSize: 24, color: "#6B3836", fontWeight: 600, lineHeight: 1 }}>
+          <div style={{ fontSize: 8.5, color: "#7a90b0", letterSpacing: ".06em", marginBottom: 3 }}>· In Love ·</div>
+          <div style={{ fontFamily: "'Playfair Display','Noto Serif SC',serif", fontSize: 24, color: "#3d4451", fontWeight: 600, lineHeight: 1 }}>
             {days} <span style={{ fontSize: 12, fontWeight: 400 }}>days</span>
           </div>
         </div>
 
         {/* 提醒 + 进来 */}
         <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
-          <div onClick={() => setPage("reminder")} style={{ background: "#BC788D", borderRadius: 14, padding: "12px 13px", flex: 1, cursor: "pointer" }}>
-            <div style={{ fontSize: 8.5, color: "#f0dce4", letterSpacing: ".06em", marginBottom: 5 }}>提醒</div>
+          <div onClick={() => setPage("reminder")} style={{ background: "#BFC8D5", borderRadius: 14, padding: "12px 13px", flex: 1, cursor: "pointer" }}>
+            <div style={{ fontSize: 8.5, color: "#e8edf4", letterSpacing: ".06em", marginBottom: 5 }}>提醒</div>
             <div style={{ fontSize: 15, color: "#fff" }}>{pendingReminders || 0} <span style={{ fontSize: 10, fontWeight: 400 }}>件</span></div>
-            <div style={{ fontSize: 9, color: "#e0b8c8", marginTop: 2 }}>待处理</div>
+            <div style={{ fontSize: 9, color: "#dde4ee", marginTop: 2 }}>待处理</div>
           </div>
-          <div onClick={() => setPage("chat")} style={{ background: "#BC788D", borderRadius: 14, padding: "12px 13px", flex: 1, display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer" }}>
+          <div onClick={() => setPage("chat")} style={{ background: "#BFC8D5", borderRadius: 14, padding: "12px 13px", flex: 1, display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer" }}>
             <div>
-              <div style={{ fontSize: 8.5, color: "#f0dce4", letterSpacing: ".06em", marginBottom: 5 }}>进来</div>
+              <div style={{ fontSize: 8.5, color: "#e8edf4", letterSpacing: ".06em", marginBottom: 5 }}>进来</div>
               <div style={{ fontSize: 13, color: "#fff" }}>聊天</div>
             </div>
-            <span style={{ fontSize: 18, color: "#e0b8c8" }}>›</span>
+            <span style={{ fontSize: 18, color: "#dde4ee" }}>›</span>
           </div>
         </div>
       </div>
 
-      {/* 信封留言 */}
-      {latestMsg && (
-        <div onClick={() => setPage("mailboxFull")} style={{ margin: "0 16px 24px", borderRadius: 14, overflow: "hidden", border: "1px solid #d4a0a8", cursor: "pointer" }}>
-          <div style={{ background: "#BC788D", height: 28, display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <span style={{ fontSize: 9, color: "#f0dce4", letterSpacing: ".08em" }}>✉ 留言</span>
-          </div>
-          <div style={{ background: "#F0D9E4", padding: "12px 14px" }}>
-            <div style={{ fontSize: 9, color: "#C9A2A2", marginBottom: 6 }}>{latestMsg.time}</div>
-            <div style={{ fontFamily: "'Playfair Display','Noto Serif SC',serif", fontSize: 13, color: "#6B3836", lineHeight: 1.7 }}>{latestMsg.content}</div>
-          </div>
+      {/* 信封留言：从下往上堆，最新的在最底部 */}
+      {recentMsgs.length > 0 && (
+        <div style={{ margin: "0 16px 24px", display: "flex", flexDirection: "column-reverse", gap: 7 }}>
+          {recentMsgs.map(msg => (
+            <div key={msg.id} onClick={() => setPage("mailboxFull")} style={{ borderRadius: 14, overflow: "hidden", border: "1px solid #d0daeb", cursor: "pointer" }}>
+              <div style={{ background: "#BFC8D5", height: 28, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <span style={{ fontSize: 9, color: "#e8edf4", letterSpacing: ".08em" }}>✉ 留言</span>
+              </div>
+              <div style={{ background: "#E4EAF4", padding: "12px 14px" }}>
+                <div style={{ fontSize: 9, color: "#9aa3ad", marginBottom: 6 }}>{msg.time}</div>
+                <div style={{ fontFamily: "'Playfair Display','Noto Serif SC',serif", fontSize: 13, color: "#3d4451", lineHeight: 1.7 }}>{msg.content}</div>
+              </div>
+            </div>
+          ))}
         </div>
       )}
 
