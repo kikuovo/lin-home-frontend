@@ -1397,7 +1397,7 @@ function MailboxPage({ setPage, mailbox, setMailbox }) {
                 <span style={{ fontSize: 9, color: "#fde0e4" }}>{m.time}</span>
               </div>
               <div style={{ background: "#FFDDE1", padding: "12px 14px" }}>
-                <div style={{ fontFamily: "'DM Serif Display','Noto Serif SC',serif", fontSize: 13, color: "#7a3040", lineHeight: 1.7, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>{m.content}</div>
+                <div style={{ fontFamily: "'DM Serif Display','Noto Serif SC',serif", fontSize: 13, color: "#7a3040", lineHeight: 1.7 }}>{m.content}</div>
               </div>
             </div>
           );
