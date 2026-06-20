@@ -790,6 +790,7 @@ function ReminderPage({ setPage, reminders, setReminders }) {
   const [newDueDate, setNewDueDate] = useState("");
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState("today");
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
 
   const quote = SCHEDULE_QUOTES[new Date().getDate() % SCHEDULE_QUOTES.length];
 
@@ -965,7 +966,16 @@ function ReminderPage({ setPage, reminders, setReminders }) {
                       </div>
                     )}
                   </div>
-                  <span onClick={() => deleteReminder(r.id)} style={{ fontSize: 10, color: "var(--c-text3)", cursor: "pointer", padding: "0 2px", flexShrink: 0, marginTop: 2 }}>删</span>
+                  <div style={{ flexShrink: 0, marginTop: 2, display: "flex", alignItems: "center", gap: 6 }}>
+                    {confirmDeleteId === r.id ? (
+                      <>
+                        <span onClick={() => setConfirmDeleteId(null)} style={{ fontSize: 9.5, color: "var(--c-text3)", cursor: "pointer" }}>取消</span>
+                        <span onClick={() => { deleteReminder(r.id); setConfirmDeleteId(null); }} style={{ fontSize: 9.5, color: "var(--c-warn)", cursor: "pointer" }}>删除</span>
+                      </>
+                    ) : (
+                      <span onClick={() => setConfirmDeleteId(r.id)} style={{ fontSize: 10, color: "var(--c-text3)", cursor: "pointer", padding: "0 2px" }}>删</span>
+                    )}
+                  </div>
                 </div>
               );
             })}
@@ -1729,6 +1739,7 @@ function MemoryPage({ setPage }) {
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState(null);
   const [editingText, setEditingText] = useState("");
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
   const [newText, setNewText] = useState("");
   const [adding, setAdding] = useState(false);
 
@@ -1782,8 +1793,8 @@ function MemoryPage({ setPage }) {
           <div key={m.id} style={{ background: "var(--c-surface)", borderRadius: 12, padding: "14px 16px" }}>
             {editingId === m.id ? (
               <>
-                <textarea value={editingText} onChange={e => setEditingText(e.target.value)} rows={3}
-                  style={{ width: "100%", border: "none", outline: "none", fontSize: 16, fontFamily: "inherit", resize: "none", color: "var(--c-text1)", lineHeight: 1.65, background: "transparent" }} />
+                <textarea value={editingText} onChange={e => setEditingText(e.target.value)} rows={Math.max(6, editingText.split("\n").length + 2)}
+                  style={{ width: "100%", border: "none", outline: "none", fontSize: 16, fontFamily: "inherit", resize: "vertical", color: "var(--c-text1)", lineHeight: 1.65, background: "transparent", minHeight: 120 }} />
                 <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 8 }}>
                   <span onClick={() => setEditingId(null)} style={{ fontSize: 12, color: "var(--c-text3)", cursor: "pointer" }}>取消</span>
                   <span onClick={() => saveEdit(m.id)} style={{ fontSize: 12, color: "var(--c-bg)", background: "var(--c-accent)", borderRadius: 6, padding: "4px 12px", cursor: "pointer" }}>保存</span>
@@ -1794,9 +1805,16 @@ function MemoryPage({ setPage }) {
                 <div style={{ fontSize: 13, color: "var(--c-text1)", lineHeight: 1.65, whiteSpace: "pre-wrap" }}>{m.summary}</div>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 10 }}>
                   <div style={{ fontSize: 11, color: "var(--c-text3)" }}>{m.timestamp ? new Date(m.timestamp).toLocaleDateString("zh") : "手动"}</div>
-                  <div style={{ display: "flex", gap: 10 }}>
+                  <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
                     <span onClick={() => { setEditingId(m.id); setEditingText(m.summary); }} style={{ fontSize: 11, cursor: "pointer", color: "var(--c-text3)" }}>编辑</span>
-                    <span onClick={() => deleteMemory(m.id)} style={{ fontSize: 11, cursor: "pointer", color: "var(--c-warn)" }}>删除</span>
+                    {confirmDeleteId === m.id ? (
+                      <>
+                        <span onClick={() => setConfirmDeleteId(null)} style={{ fontSize: 11, cursor: "pointer", color: "var(--c-text3)" }}>取消</span>
+                        <span onClick={() => { deleteMemory(m.id); setConfirmDeleteId(null); }} style={{ fontSize: 11, cursor: "pointer", color: "var(--c-warn)" }}>删除</span>
+                      </>
+                    ) : (
+                      <span onClick={() => setConfirmDeleteId(m.id)} style={{ fontSize: 11, cursor: "pointer", color: "var(--c-warn)" }}>删除</span>
+                    )}
                   </div>
                 </div>
               </>
