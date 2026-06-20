@@ -1381,7 +1381,7 @@ function MailboxPage({ setPage, mailbox, setMailbox }) {
         <span onClick={markAllRead} style={{ fontSize: 10, color: "#EE9CA7", cursor: "pointer" }}>全部已读</span>
       </div>
 
-      <div style={{ flex: 1, overflowY: "auto", padding: "16px 14px", display: "flex", flexDirection: "column", gap: 10 }}>
+      <div style={{ flex: 1, overflowY: "auto", padding: "16px 14px", display: "flex", flexDirection: "column", gap: 14 }}>
         {(mailbox || []).length === 0 ? (
           <div style={{ textAlign: "center", fontSize: 12, color: "#F4B6BE", padding: "50px 0" }}>暂时没有留言</div>
         ) : (mailbox || []).map((m, i) => {
@@ -1396,7 +1396,7 @@ function MailboxPage({ setPage, mailbox, setMailbox }) {
                 </div>
                 <span style={{ fontSize: 8.5, color: "#fde0e4" }}>{m.time}</span>
               </div>
-              <div style={{ background: "#FFDDE1", padding: "8px 12px" }}>
+              <div style={{ background: "#FFDDE1", padding: "12px 14px" }}>
                 <div style={{ fontFamily: "'DM Serif Display','Noto Serif SC',serif", fontSize: 12.5, color: "#7a3040", lineHeight: 1.6, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>{m.content}</div>
               </div>
             </div>
