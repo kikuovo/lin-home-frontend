@@ -364,7 +364,7 @@ function ChatPage({ setPage, avatarUrl, userAvatarUrl }) {
   const [activeId, setActiveId] = useState(null);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
-  const [model, setModel] = useState("deepseek-reasoner");
+  const [model, setModel] = useState("claude");
   const [isTyping, setIsTyping] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -529,6 +529,7 @@ function ChatPage({ setPage, avatarUrl, userAvatarUrl }) {
         </div>
         <div style={{ padding: "10px 14px", borderTop: `0.5px solid var(--c-border)` }}>
           <select value={model} onChange={e => setModel(e.target.value)} style={{ width: "100%", padding: "6px 8px", fontSize: 16, borderRadius: 8, border: `0.5px solid var(--c-border)`, background: "var(--c-bg)", color: "var(--c-text2)", fontFamily: "inherit", outline: "none", cursor: "pointer" }}>
+            <option value="claude">Claude</option>
             <option value="deepseek-chat">DeepSeek Chat</option>
             <option value="deepseek-reasoner">DeepSeek Reasoner</option>
           </select>
@@ -1603,7 +1604,7 @@ function SettingsHubPage({ setPage, theme, setTheme }) {
         <div style={{ background: "rgba(255,255,255,0.55)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", borderRadius: 16, padding: "14px 16px", border: "0.5px solid rgba(255,255,255,0.8)" }}>
           <div style={{ fontSize: 9.5, color: "#7a9ab8", marginBottom: 6 }}>当前模型</div>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <span style={{ fontSize: 14, color: "#2a3a4a" }}>DeepSeek</span>
+            <span style={{ fontSize: 14, color: "#2a3a4a" }}>Claude</span>
             <span style={{ fontSize: 10, color: "var(--c-good)" }}>● 已连接</span>
           </div>
         </div>
