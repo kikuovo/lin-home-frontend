@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 
-const API_BASE = "https://lin-home-backend.onrender.com";
+const API_BASE = "https://son-roger-nylon-europe.trycloudflare.com";
 
 // ── 霜花配色 ──────────────────────────────────────────────────
 const THEMES = {
