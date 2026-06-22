@@ -529,7 +529,10 @@ function ChatPage({ setPage, avatarUrl, userAvatarUrl }) {
         </div>
         <div style={{ padding: "10px 14px", borderTop: `0.5px solid var(--c-border)` }}>
           <select value={model} onChange={e => setModel(e.target.value)} style={{ width: "100%", padding: "6px 8px", fontSize: 16, borderRadius: 8, border: `0.5px solid var(--c-border)`, background: "var(--c-bg)", color: "var(--c-text2)", fontFamily: "inherit", outline: "none", cursor: "pointer" }}>
-            <option value="claude">Claude</option>
+            <option value="claude">Claude（默认）</option>
+            <option value="claude:opus">Claude Opus</option>
+            <option value="claude:sonnet">Claude Sonnet</option>
+            <option value="claude:haiku">Claude Haiku</option>
             <option value="deepseek-chat">DeepSeek Chat</option>
             <option value="deepseek-reasoner">DeepSeek Reasoner</option>
           </select>
