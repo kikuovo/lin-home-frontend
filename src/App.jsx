@@ -364,7 +364,7 @@ function ChatPage({ setPage, avatarUrl, userAvatarUrl }) {
   const [activeId, setActiveId] = useState(null);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
-  const [model, setModel] = useState("deepseek-reasoner");
+  const [model, setModel] = useState("claude");
   const [isTyping, setIsTyping] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -529,6 +529,10 @@ function ChatPage({ setPage, avatarUrl, userAvatarUrl }) {
         </div>
         <div style={{ padding: "10px 14px", borderTop: `0.5px solid var(--c-border)` }}>
           <select value={model} onChange={e => setModel(e.target.value)} style={{ width: "100%", padding: "6px 8px", fontSize: 16, borderRadius: 8, border: `0.5px solid var(--c-border)`, background: "var(--c-bg)", color: "var(--c-text2)", fontFamily: "inherit", outline: "none", cursor: "pointer" }}>
+            <option value="claude">Claude（默认）</option>
+            <option value="claude:opus">Claude Opus</option>
+            <option value="claude:sonnet">Claude Sonnet</option>
+            <option value="claude:haiku">Claude Haiku</option>
             <option value="deepseek-chat">DeepSeek Chat</option>
             <option value="deepseek-reasoner">DeepSeek Reasoner</option>
           </select>
@@ -600,6 +604,17 @@ function ChatPage({ setPage, avatarUrl, userAvatarUrl }) {
             )}
           </div>
         )}
+        <div style={{ padding: "6px 14px 0", display: "flex", justifyContent: "flex-end" }}>
+          <select value={model} onChange={e => setModel(e.target.value)}
+            style={{ fontSize: 11, color: "var(--c-text3)", border: `0.5px solid var(--c-border)`, borderRadius: 8, padding: "3px 8px", background: "var(--c-surface)", fontFamily: "inherit", outline: "none", cursor: "pointer" }}>
+            <option value="claude">Claude（默认）</option>
+            <option value="claude:opus">Claude Opus</option>
+            <option value="claude:sonnet">Claude Sonnet</option>
+            <option value="claude:haiku">Claude Haiku</option>
+            <option value="deepseek-chat">DeepSeek Chat</option>
+            <option value="deepseek-reasoner">DeepSeek Reasoner</option>
+          </select>
+        </div>
         <div style={{ padding: "10px 14px", display: "flex", gap: 8, alignItems: "flex-end" }}>
           <input ref={fileInputRef} type="file" onChange={handleFileSelect} style={{ display: "none" }} />
           <span onClick={() => fileInputRef.current?.click()}
